@@ -1,0 +1,10 @@
+node_modules
+dist
+data
+server/data.json
+server/data.backup.json
+server/data.json.*
+server/secrets.json
+server/secrets.json.*
+.git
+*.log

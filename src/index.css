@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #efece4;
+  --card: #ffffff;
+  --ink: #23231f;
+  --muted: #6f6d64;
+  --faint: #9a978c;
+  --green: #dfe8da;
+  --greenInk: #2f4c38;
+  --greenSoft: #79886f;
+  --blush: #f3ded5;
+  --blushInk: #85462a;
+  --blushSoft: #9a7060;
+  --butter: #f4ead0;
+  --butterInk: #75601f;
+  --sky: #dde7ef;
+  --skyInk: #2f4a5e;
+  --wash: rgba(255, 255, 255, 0.72);
+  --photo: #e6e1d7;
+  --btn: #23231f;
+  --btnInk: #f7f4ee;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0d0e0d;
+  --card: #1a1c1a;
+  --ink: #f0eee9;
+  --muted: #9a9893;
+  --faint: #6a6864;
+  --green: #1a231c;
+  --greenInk: #a9cbb0;
+  --greenSoft: #78897c;
+  --blush: #241b17;
+  --blushInk: #e0a98d;
+  --blushSoft: #9d7f70;
+  --butter: #221e0f;
+  --butterInk: #d7c48a;
+  --sky: #1a2028;
+  --skyInk: #a8c4d8;
+  --wash: rgba(255, 255, 255, 0.07);
+  --photo: #232523;
+  --btn: #f0eee9;
+  --btnInk: #17181a;
+}
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -webkit-overflow-scrolling: touch;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  input, textarea, select {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  input::placeholder {
+    color: var(--faint);
+  }
+}
+
+/* Enable full smooth native scrolling on mobile companion view */
+html.companion-mode,
+body.companion-mode {
+  height: auto !important;
+  min-height: 100% !important;
+  width: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: auto !important;
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+  position: static !important;
+}
+
+body.companion-mode #root {
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+  position: static !important;
+}
+
+.atelier-canvas-bg {
+  background-color: #f3efe6;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(248, 237, 222, 0.6) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(228, 218, 202, 0.5) 0px, transparent 60%),
+    radial-gradient(#dfd5c5 0.75px, transparent 0.75px);
+  background-size: 100% 100%, 100% 100%, 26px 26px;
+}
+
+.magazine-page {
+  background: #fdfbf7;
+  background-image: radial-gradient(#ebe3d5 0.5px, transparent 0.5px);
+  background-size: 18px 18px;
+}
+
+.washi-tape-amber {
+  background: rgba(235, 185, 120, 0.72);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 1px 4px rgba(60, 40, 20, 0.12);
+}
+
+.washi-tape-terracotta {
+  background: rgba(195, 95, 65, 0.7);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.postit-note {
+  background: linear-gradient(155deg, #fff9d2 0%, #fff1a8 100%);
+  box-shadow: 0 10px 24px -5px rgba(110, 85, 20, 0.18), 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.terracotta-dial {
+  background: radial-gradient(circle at 35% 35%, #b64528, #862912);
+  box-shadow: 0 10px 25px -4px rgba(134, 41, 18, 0.4), inset 0 2px 3px rgba(255,255,255,0.25);
+}
+
+.deckle-line {
+  background: repeating-linear-gradient(90deg, #d6caba, #d6caba 6px, transparent 6px, transparent 12px);
+}
+
+/* Material Symbols alignment helper */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom subtle scrollbars for light aesthetic */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}

@@ -1,0 +1,16 @@
+{
+  "short_name": "Küche",
+  "name": "Kitchen Wall",
+  "icons": [
+    {
+      "src": "/kitchen-icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0e131f",
+  "theme_color": "#0e131f",
+  "display": "standalone",
+  "orientation": "any"
+}

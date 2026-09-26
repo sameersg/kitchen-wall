@@ -1,0 +1,23 @@
+# systemd unit for running Kitchen Wall 24/7 on a Raspberry Pi.
+# Install:
+#   sudo cp deploy/kitchenwall.service /etc/systemd/system/
+#   (adjust User and WorkingDirectory below if your user/path differ)
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now kitchenwall
+[Unit]
+Description=Kitchen Wall Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/kitchen-wall
+ExecStart=/usr/bin/env node server/index.js
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
