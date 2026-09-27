@@ -8,6 +8,8 @@ import { AmbientScreensaver } from './components/AmbientScreensaver';
 import { MobileCompanion } from './components/mobile/MobileCompanion';
 import { useSyncState } from './hooks/useSyncState';
 import { useWakeLock } from './hooks/useWakeLock';
+import { useKitchenTimers, parseCookMinutes } from './hooks/useKitchenTimers';
+import { TimerPanel, TimerAlarm } from './components/claude/TimerPanel';
 import { useDashboardCalendar } from './hooks/useDashboardCalendar';
 import { SingleMeal, ShoppingCategory, MealType } from './types';
 import { DayMealsModal } from './components/claude/DayMealsModal';
@@ -42,6 +44,8 @@ export function App() {
   } = useSyncState();
 
   useWakeLock();
+  const kitchenTimers = useKitchenTimers();
+  const [isTimerPanelOpen, setIsTimerPanelOpen] = useState(false);
 
   // Modals state
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
@@ -127,6 +131,13 @@ export function App() {
   const activeDateOrKey = editingDayKey || todayStr;
   const currentDayItem = getMealItemForDate(state.mealPlan, activeDateOrKey);
 
+  // Today's main dish with a cooking time, offered as a one-tap timer
+  const todayItem = getMealItemForDate(state.mealPlan, todayStr);
+  const todayMainType = mainMealType(todayItem);
+  const todayMainMeal = todayMainType ? todayItem.meals?.[todayMainType] : null;
+  const todayMinutes = parseCookMinutes(todayMainMeal?.cookTime);
+  const todayTimerDish = todayMainMeal && todayMinutes ? { title: todayMainMeal.title, minutes: todayMinutes } : null;
+
   // Meal edited in the recipe modal: the chosen slot, else the day's main meal, else dinner
   const recipeMealType: MealType = editingMealType || mainMealType(currentDayItem) || 'abendessen';
   const currentMeal: SingleMeal | null = currentDayItem?.meals?.[recipeMealType] || null;
@@ -180,6 +191,8 @@ export function App() {
           onAddNote={handleAddNote}
           onRemoveNote={removeNote}
           onSelectWeekMeal={handleOpenDayMeal}
+          timers={kitchenTimers.timers}
+          onOpenTimers={() => setIsTimerPanelOpen(true)}
           calendarEvents={calendarEvents}
           isCalendarLive={isCalendarLive}
           isCalendarSyncing={isCalendarSyncing}
@@ -254,6 +267,21 @@ export function App() {
         onOpenDetails={handleOpenMealDetails}
         onClose={() => setDayModalDate(null)}
       />
+
+      {/* Kitchen timers */}
+      <TimerPanel
+        isOpen={isTimerPanelOpen}
+        timers={kitchenTimers.timers}
+        presets={state.settings.customTimerPresets || []}
+        todayDish={todayTimerDish}
+        onStart={kitchenTimers.startTimer}
+        onPause={kitchenTimers.pauseTimer}
+        onResume={kitchenTimers.resumeTimer}
+        onAddMinute={kitchenTimers.addMinute}
+        onCancel={kitchenTimers.cancelTimer}
+        onClose={() => setIsTimerPanelOpen(false)}
+      />
+      <TimerAlarm ringing={kitchenTimers.ringing} onDismiss={kitchenTimers.dismissRinging} />
 
       {/* Settings Modal */}
       <SettingsModal

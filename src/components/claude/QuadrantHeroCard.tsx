@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDashboardWeather } from '../../hooks/useDashboardWeather';
+import { KitchenTimer } from '../../hooks/useKitchenTimers';
+import { TimerChips } from './TimerPanel';
 
 interface QuadrantHeroCardProps {
   householdName?: string;
@@ -13,6 +15,8 @@ interface QuadrantHeroCardProps {
   todayNote: string;
   /** Other meals planned today, shown as small chips (e.g. FRÜH · Porridge) */
   otherMeals?: { short: string; dish: string }[];
+  timers?: KitchenTimer[];
+  onOpenTimers?: () => void;
   onOpenRecipe?: () => void;
   weatherLat?: number;
   weatherLon?: number;
@@ -35,6 +39,8 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
   todayCook,
   todayNote,
   otherMeals = [],
+  timers = [],
+  onOpenTimers,
   onOpenRecipe,
   weatherLat,
   weatherLon
@@ -104,7 +110,7 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
               <span className="text-[18px] md:text-[20px] font-[800] text-white leading-none">
                 {weather.temp}°
               </span>
-              <span className="text-[11px] font-[600] text-white/85">
+              <span className="text-[11px] font-[600] text-white/85 whitespace-nowrap">
                 {weather.conditionText} · morgen {weather.tomorrowTemp}°
               </span>
             </div>
@@ -115,7 +121,7 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
               <button
                 type="button"
                 onClick={onToggleNight}
-                className="text-[11px] font-[700] text-white bg-white/16 hover:bg-white/28 active:scale-95 transition-all backdrop-blur-md px-3.5 py-2 rounded-full border border-white/10 cursor-pointer"
+                className="whitespace-nowrap text-[11px] font-[700] text-white bg-white/16 hover:bg-white/28 active:scale-95 transition-all backdrop-blur-md px-3.5 py-2 rounded-full border border-white/10 cursor-pointer"
                 title={isNight ? 'Tag-Modus aktivieren' : 'Nacht-Modus aktivieren'}
               >
                 {isNight ? 'Tag' : 'Nacht'}
@@ -125,7 +131,7 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
               <button
                 type="button"
                 onClick={onOpenQr}
-                className="flex items-center gap-2 bg-white text-[#23231f] hover:bg-white/90 active:scale-95 transition-all px-3.5 py-2 rounded-full shadow-md cursor-pointer font-[800] text-[11px]"
+                className="flex items-center gap-2 whitespace-nowrap bg-white text-[#23231f] hover:bg-white/90 active:scale-95 transition-all px-3.5 py-2 rounded-full shadow-md cursor-pointer font-[800] text-[11px]"
                 title="iPhone verbinden"
               >
                 <div className="grid grid-cols-3 grid-rows-3 gap-[2px] w-[14px] h-[14px] place-items-center">
@@ -147,7 +153,7 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
                 <button
                   type="button"
                   onClick={onOpenSettings}
-                  className="w-7 h-7 flex items-center justify-center bg-white/14 hover:bg-white/28 active:scale-95 transition-all backdrop-blur-md rounded-full text-white/80 hover:text-white cursor-pointer"
+                  className="w-7 h-7 shrink-0 flex items-center justify-center bg-white/14 hover:bg-white/28 active:scale-95 transition-all backdrop-blur-md rounded-full text-white/80 hover:text-white cursor-pointer"
                   title="Einstellungen öffnen"
                 >
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -161,6 +167,8 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
         </div>
 
         {/* Bottom Area: Today's Featured Dish in Instrument Serif */}
+        <div className={`flex flex-col gap-2 ${onOpenTimers ? 'pr-[110px]' : ''}`}>
+        <TimerChips timers={timers} onOpen={() => onOpenTimers?.()} />
         <div
           onClick={onOpenRecipe}
           className="flex flex-col gap-1.5 group cursor-pointer active:scale-[0.99] transition-transform"
@@ -193,7 +201,24 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
             )}
           </div>
         </div>
+        </div>
       </div>
+
+      {/* Kitchen timer, bottom right */}
+      {onOpenTimers && (
+        <button
+          type="button"
+          onClick={onOpenTimers}
+          aria-label="Küchen-Timer"
+          className="absolute bottom-5 right-5 md:bottom-6 md:right-6 flex items-center gap-1.5 whitespace-nowrap text-[12px] font-[800] text-white bg-white/16 hover:bg-white/28 active:scale-95 transition-all backdrop-blur-md px-3.5 py-2 rounded-full border border-white/10 cursor-pointer"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="13" r="8" />
+            <path d="M12 9v4l2.5 2.5M9.5 2.5h5" />
+          </svg>
+          Timer{timers.length > 0 ? ` · ${timers.length}` : ''}
+        </button>
+      )}
     </div>
   );
 };

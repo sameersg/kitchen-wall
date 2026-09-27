@@ -7,6 +7,7 @@ import { AppState, ShoppingCategory, SingleMeal, CalendarEvent } from '../../typ
 import { formatISODate } from '../../utils/dateUtils';
 import { getMealItemForDate } from '../../hooks/useSyncState';
 import { mainMealType, plannedSlots } from '../../utils/mealSlots';
+import { KitchenTimer } from '../../hooks/useKitchenTimers';
 
 interface ClaudeQuadrantDashboardProps {
   state: AppState;
@@ -22,6 +23,8 @@ interface ClaudeQuadrantDashboardProps {
   onRemoveNote: (id: string) => void;
   onSelectWeekMeal?: (dayKey: string, meal: SingleMeal | null) => void;
   onOpenDay?: (dateStr: string) => void;
+  timers?: KitchenTimer[];
+  onOpenTimers?: () => void;
   calendarEvents?: CalendarEvent[];
   isCalendarLive?: boolean;
   isCalendarSyncing?: boolean;
@@ -46,6 +49,8 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
   onRemoveNote,
   onSelectWeekMeal,
   onOpenDay,
+  timers,
+  onOpenTimers,
   calendarEvents,
   isCalendarLive = false,
   isCalendarSyncing = false,
@@ -89,6 +94,8 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
         todayCook={todayCook}
         todayNote={todayNote}
         otherMeals={otherMeals}
+        timers={timers}
+        onOpenTimers={onOpenTimers}
         onOpenRecipe={onOpenRecipeModal}
         weatherLat={settings.weatherLat}
         weatherLon={settings.weatherLon}
