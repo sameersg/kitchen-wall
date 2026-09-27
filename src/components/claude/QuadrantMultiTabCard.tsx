@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { CalendarEvent, KitchenNote } from '../../types';
-import { calculateWasteSchedule } from '../../utils/wasteSchedule';
 import { getUpcomingWasteSchedule } from '../../utils/wasteParser';
 
 interface QuadrantMultiTabCardProps {
@@ -22,15 +21,6 @@ const GERMAN_MONTHS_SHORT = [
   'JUL', 'AUG', 'SEP', 'OKT', 'NOV', 'DEZ'
 ];
 
-// Curated default occasions for lively family kitchen ambiance
-const DEFAULT_OCCASIONS = [
-  { m: 1, d: 1, title: 'Neujahr', who: 'Feiertag' },
-  { m: 5, d: 1, title: 'Tag der Arbeit', who: 'Feiertag' },
-  { m: 10, d: 3, title: 'Tag der Deutschen Einheit', who: 'Feiertag' },
-  { m: 11, d: 8, title: 'Diwali', who: 'Lichterfest' },
-  { m: 12, d: 24, title: 'Heiligabend', who: 'Familienfest' },
-  { m: 12, d: 31, title: 'Silvester', who: 'Jahresende' }
-];
 
 export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
   events,
@@ -51,7 +41,7 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
   const now = new Date();
   const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  // Merge custom events and curated occasions
+  // Upcoming events from the linked calendars
   const processedEvents = [
     ...events.map((e) => {
       const parts = e.date.split('-');
@@ -66,32 +56,17 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
         countdown: diffDays === 0 ? 'heute' : diffDays === 1 ? 'morgen' : `in ${diffDays} Tagen`,
         days: diffDays
       };
-    }),
-    ...DEFAULT_OCCASIONS.map((o, idx) => {
-      let d = new Date(now.getFullYear(), o.m - 1, o.d);
-      if (d < startToday) d = new Date(now.getFullYear() + 1, o.m - 1, o.d);
-      const diffDays = Math.round((d.getTime() - startToday.getTime()) / 86400000);
-      return {
-        id: `occ_${idx}`,
-        title: o.title,
-        who: o.who,
-        dayNum: o.d,
-        monthShort: GERMAN_MONTHS_SHORT[o.m - 1],
-        countdown: diffDays === 0 ? 'heute' : diffDays === 1 ? 'morgen' : `in ${diffDays} Tagen`,
-        days: diffDays
-      };
     })
   ]
     .filter((e) => e.days >= 0)
     .sort((a, b) => a.days - b.days)
     .slice(0, 6);
 
-  // Real waste schedule if available, else simulation fallback
-  const realWasteItems = wasteEvents && wasteEvents.length > 0
+  // Waste pickups from the uploaded calendar only (no invented dates)
+  const wasteItems = wasteEvents && wasteEvents.length > 0
     ? getUpcomingWasteSchedule(wasteEvents, now)
     : [];
-  const isRealWasteActive = realWasteItems.length > 0;
-  const wasteItems = isRealWasteActive ? realWasteItems : calculateWasteSchedule(now);
+  const isRealWasteActive = wasteItems.length > 0;
 
   const handleNoteKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -160,6 +135,20 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
       {/* TAB 1: Anlässe */}
       {activeTab === 'Anlässe' && (
         <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2.5 pr-1 scrollbar-none">
+          {processedEvents.length === 0 && (
+            <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 text-[var(--muted)] px-4">
+              <span className="text-[13px] font-[600]">Keine anstehenden Termine</span>
+              {onOpenCalendarSettings && (
+                <button
+                  type="button"
+                  onClick={onOpenCalendarSettings}
+                  className="text-[12px] font-[700] text-[var(--butterInk)] underline cursor-pointer"
+                >
+                  Kalender verknüpfen
+                </button>
+              )}
+            </div>
+          )}
           {processedEvents.map((e) => (
             <div
               key={e.id}
@@ -257,6 +246,11 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
       {activeTab === 'Müll' && (
         <div className="flex-1 min-h-0 flex flex-col justify-between gap-1.5 py-0.5">
           <div className="flex-1 min-h-0 flex flex-col justify-between gap-2">
+            {wasteItems.length === 0 && (
+              <div className="flex-1 flex items-center justify-center text-center text-[13px] font-[600] text-[var(--muted)] px-4">
+                Noch kein Müllkalender hinterlegt
+              </div>
+            )}
             {wasteItems.map((w) => (
               <div
                 key={w.id}
@@ -283,7 +277,7 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
           {/* Source indicator */}
           <div className="flex items-center justify-between text-[10.5px] font-[600] text-[var(--butterInk)] px-2 pt-1">
             <span>
-              {isRealWasteActive ? `📅 ${wasteCalendarName || 'Abfallkalender aktiv'}` : '⚡ Standard-Zyklus aktiv'}
+              {isRealWasteActive ? `📅 ${wasteCalendarName || 'Abfallkalender aktiv'}` : ''}
             </span>
             {onOpenWasteSettings && (
               <button

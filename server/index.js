@@ -183,6 +183,55 @@ function stripSecrets(state) {
   return { ...state, settings: { ...state.settings, bring: cleanBring } };
 }
 
+// ---------------------------------------------------------------------------
+// Earlier versions seeded new installs with demo content. Remove exactly those
+// entries (matched by their fixed ids and texts); anything the user created is kept.
+// ---------------------------------------------------------------------------
+const DEMO_SHOPPING = new Map([
+  ['1', 'Hafermilch Barista'], ['2', 'Bio-Eier'], ['3', 'Avocado'], ['4', 'Sauerteigbrot'], ['5', 'Espressobohnen']
+]);
+const DEMO_NOTES = new Map([
+  ['1', 'Guten Morgen! ☕ Frische Brötchen sind im Korb. Schönes Wochenende!'],
+  ['2', 'Heute Abend: Selbstgemachte Pizza um 19:30 Uhr 🍕'],
+  ['note_demo_1', 'Guten Morgen! ☕ Frische Brötchen sind im Korb.'],
+  ['note_demo_2', 'Heute Abend: Selbstgemachte Pizza um 19:30 Uhr 🍕']
+]);
+const DEMO_EVENTS = new Map([
+  ['ev_1', 'Zahnarzt Kontrolltermin'], ['ev_2', 'Mamas Geburtstag 🎂'],
+  ['ev_3', 'Elternabend Schule 🏫'], ['ev_4', 'Yoga & Pilates 🧘‍♀️']
+]);
+const DEMO_MEAL_TITLES = new Set([
+  'Bunte Buddha Bowl mit Avocado & Kichererbsen', 'Cremiges Steinpilz-Risotto mit Parmesan',
+  'Cremiges Thai Kokos-Curry mit Reis', 'Daal and Rice', 'Frische Pasta mit Tomaten & Burrata',
+  'Knusprige Steinofen Pizza Funghi & Rucola', 'Würzige Mexican Street Tacos'
+]);
+
+function isDemoMealTemplate(item) {
+  if (!item || item.date || !/^meal_(mo|di|mi|do|fr|sa|so)$/.test(item.id || '')) return false;
+  const titles = [item.title, ...Object.values(item.meals || {}).map((m) => m?.title)].filter(Boolean);
+  return titles.length > 0 && titles.every((t) => DEMO_MEAL_TITLES.has(t));
+}
+
+function removeDemoData(state) {
+  if (!state || typeof state !== 'object') return { state, removed: 0 };
+  let removed = 0;
+  const keep = (list, isDemo) => {
+    if (!Array.isArray(list)) return list;
+    const kept = list.filter((entry) => !isDemo(entry));
+    removed += list.length - kept.length;
+    return kept;
+  };
+  const next = {
+    ...state,
+    shoppingList: keep(state.shoppingList, (i) =>
+      /^item_demo_\d+$/.test(i?.id || '') || DEMO_SHOPPING.get(i?.id) === i?.name),
+    notes: keep(state.notes, (n) => DEMO_NOTES.get(n?.id) === n?.text),
+    customCalendarEvents: keep(state.customCalendarEvents, (e) => DEMO_EVENTS.get(e?.id) === e?.title),
+    mealPlan: keep(state.mealPlan, isDemoMealTemplate)
+  };
+  return { state: next, removed };
+}
+
 let currentState = loadData();
 if (currentState) {
   const hadSecrets = SECRET_BRING_FIELDS.some((k) => currentState.settings?.bring?.[k]);
@@ -192,6 +241,12 @@ if (currentState) {
     saveData(currentState);
     saveData(currentState);
     console.log('🔐 Bring!-Zugangsdaten aus data.json nach secrets.json verschoben.');
+  }
+  const cleaned = removeDemoData(currentState);
+  if (cleaned.removed > 0) {
+    currentState = cleaned.state;
+    saveData(currentState); // the previous version stays in data.backup.json
+    console.log(`🧹 ${cleaned.removed} Beispiel-Einträge entfernt (vorherige Version: data.backup.json).`);
   }
 }
 

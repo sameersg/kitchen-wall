@@ -67,8 +67,10 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
     currentDayItem?.meals?.fruehstueck ||
     null;
 
-  const todayCook = currentDayItem?.day === 'sa' ? 'alle kochen' : 'Unsere Küche';
-  const todayNote = currentMeal?.category ? `${currentMeal.category} · frisch zubereitet` : 'Frisch aus der Küche';
+  const todayCook = currentMeal?.cookTime ? `⏱ ${currentMeal.cookTime}` : '';
+  const todayNote = currentMeal
+    ? (currentMeal.category ? `${currentMeal.category} · frisch zubereitet` : 'Frisch aus der Küche')
+    : 'Tippen, um ein Gericht zu planen';
 
   return (
     <div className="w-screen h-screen overflow-hidden p-3 md:p-3.5 bg-[var(--bg)] text-[var(--ink)] font-sans antialiased select-none grid grid-cols-2 grid-rows-2 gap-3 md:gap-3.5 transition-colors">
@@ -79,7 +81,7 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
         onToggleNight={onToggleNight}
         onOpenQr={onOpenQr}
         onOpenSettings={onOpenSettings}
-        todayDishName={currentMeal?.title || 'Heutiges Menü'}
+        todayDishName={currentMeal?.title || 'Noch nichts geplant'}
         todayDishImg={currentMeal?.image}
         todayCook={todayCook}
         todayNote={todayNote}

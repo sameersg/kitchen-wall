@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SingleMeal } from '../types';
 import { PRESET_DISH_TEMPLATES } from '../utils/defaults';
 import { autoFindFoodImage, getNextFoodImage } from '../utils/foodImageFinder';
+import { splitIngredientText } from '../utils/ingredients';
 import { sounds } from '../utils/audio';
 
 interface AtelierRecipeModalProps {
@@ -10,7 +11,7 @@ interface AtelierRecipeModalProps {
   dayLabel?: string;
   currentMeal?: SingleMeal | null;
   onSelectMeal: (meal: SingleMeal) => void;
-  onAddIngredientsToShopping: (ingredients: string[]) => void;
+  onAddIngredientsToShopping: (ingredients: string[]) => number | void;
 }
 
 export const AtelierRecipeModal: React.FC<AtelierRecipeModalProps> = ({
@@ -50,24 +51,17 @@ export const AtelierRecipeModal: React.FC<AtelierRecipeModalProps> = ({
 
   if (!isOpen) return null;
 
-  const currentIngredients = currentMeal?.ingredients || [
-    '500g Rigatoni / Penne',
-    '200g Feta (Schafskäse)',
-    '400g Bio-Strauchtomaten',
-    '2 Knoblauchzehen',
-    '1 Bund frisches Basilikum',
-    'Natives Olivenöl extra',
-    'Meersalz & schwarzer Pfeffer'
-  ];
+  const currentIngredients = currentMeal?.ingredients || [];
 
   const handleAddIngredients = () => {
     sounds.playTick();
-    onAddIngredientsToShopping(currentIngredients);
-    alert('Zutaten wurden erfolgreich zur Einkaufsliste hinzugefügt! ✨');
+    const added = onAddIngredientsToShopping(currentIngredients);
+    alert(added === 0 ? 'Alle Zutaten stehen bereits auf der Einkaufsliste.' : 'Zutaten wurden zur Einkaufsliste hinzugefügt! ✨');
   };
 
   const handleCycleImage = async () => {
-    const term = editTitle.trim() || 'Pasta';
+    const term = editTitle.trim();
+    if (!term) return;
     setIsSearchingImg(true);
     sounds.playTick();
     try {
@@ -90,9 +84,7 @@ export const AtelierRecipeModal: React.FC<AtelierRecipeModalProps> = ({
       finalImg = await autoFindFoodImage(editTitle);
     }
 
-    const parsedIngredients = editIngredientsText
-      ? editIngredientsText.split(/[\n,]/).map((s) => s.trim()).filter(Boolean)
-      : [];
+    const parsedIngredients = splitIngredientText(editIngredientsText || '');
 
     const updated: SingleMeal = {
       title: editTitle.trim(),
@@ -197,16 +189,21 @@ export const AtelierRecipeModal: React.FC<AtelierRecipeModalProps> = ({
                   <span className="text-xs font-mono font-bold uppercase text-[#786b5f]">
                     Zutaten ({currentIngredients.length})
                   </span>
-                  <button
-                    type="button"
-                    onClick={handleAddIngredients}
-                    className="text-xs text-terracotta font-bold hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>+ Alle auf Einkaufsliste</span>
-                  </button>
+                  {currentIngredients.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleAddIngredients}
+                      className="text-xs text-terracotta font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>+ Alle auf Einkaufsliste</span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="bg-white rounded-2xl border border-parchment-300 divide-y divide-parchment-200 overflow-hidden shadow-xs">
+                  {currentIngredients.length === 0 && (
+                    <div className="px-3.5 py-2.5 text-xs text-[#786b5f]">Noch keine Zutaten eingetragen.</div>
+                  )}
                   {currentIngredients.map((ing, i) => (
                     <div key={i} className="px-3.5 py-2 text-xs text-ink flex items-center gap-2.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0"></span>

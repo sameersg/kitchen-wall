@@ -74,6 +74,20 @@ mkdir -p "$DATA_DIR"
 chown "$SERVICE_USER:$SERVICE_USER" "$DATA_DIR"
 chmod 750 "$DATA_DIR"
 
+# --- Backup of the data before touching anything ---------------------------
+# Updates only replace the program in $APP_DIR; the data in $DATA_DIR is never
+# overwritten. A dated backup is kept anyway (the last 10), just in case.
+if [ -f "$DATA_DIR/data.json" ]; then
+  BACKUP_DIR="$DATA_DIR/backups"
+  BACKUP_FILE="$BACKUP_DIR/kitchenwall-$(date +%Y%m%d-%H%M%S).tar.gz"
+  mkdir -p "$BACKUP_DIR"
+  (cd "$DATA_DIR" && tar czf "$BACKUP_FILE" --exclude=backups .)
+  chown -R "$SERVICE_USER:$SERVICE_USER" "$BACKUP_DIR"
+  chmod 700 "$BACKUP_DIR"
+  ls -1t "$BACKUP_DIR"/kitchenwall-*.tar.gz 2>/dev/null | tail -n +11 | xargs -r rm -f
+  info "Datensicherung: $BACKUP_FILE"
+fi
+
 # --- Code -------------------------------------------------------------------
 if [ -d "$APP_DIR/.git" ]; then
   info "Aktualisiere $APP_DIR (Branch $BRANCH) ..."

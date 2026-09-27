@@ -10,6 +10,7 @@ import { useSyncState, getMealItemForDate } from '../../hooks/useSyncState';
 import { ShoppingCategory, NoteColor, MealItem, MealType, SingleMeal } from '../../types';
 import { PRESET_DISH_TEMPLATES } from '../../utils/defaults';
 import { autoFindFoodImage, getNextFoodImage, getFoodImageOptions, processUploadedImage } from '../../utils/foodImageFinder';
+import { splitIngredientText } from '../../utils/ingredients';
 import { sounds } from '../../utils/audio';
 import { formatISODate, parseISODate, getWeekDates, GERMAN_MONTHS_SHORT } from '../../utils/dateUtils';
 
@@ -270,9 +271,7 @@ export const MobileCompanion: React.FC = () => {
       if (!finalImage) {
         finalImage = await autoFindFoodImage(mobileDishName);
       }
-      const parsedIngredients = mobileIngredients
-        ? mobileIngredients.split(',').map((s: string) => s.trim()).filter(Boolean)
-        : [];
+      const parsedIngredients = splitIngredientText(mobileIngredients || '');
 
       const slotCategory = 
         selectedMealType === 'fruehstueck' ? 'Frühstück' :

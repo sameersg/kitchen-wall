@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { AppState, ShoppingCategory, SingleMeal, CalendarEvent } from '../../types';
 import { useDashboardWeather } from '../../hooks/useDashboardWeather';
-import { calculateWasteSchedule } from '../../utils/wasteSchedule';
+import { getUpcomingWasteSchedule } from '../../utils/wasteParser';
+import { formatISODate } from '../../utils/dateUtils';
+import { getMealItemForDate } from '../../hooks/useSyncState';
 
 interface ClaudeColumnarDashboardProps {
   state: AppState;
@@ -81,7 +83,7 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
   // Today's meal
   const dayKeys: Array<'so' | 'mo' | 'di' | 'mi' | 'do' | 'fr' | 'sa'> = ['so', 'mo', 'di', 'mi', 'do', 'fr', 'sa'];
   const todayKey = dayKeys[now.getDay()];
-  const currentDayItem = mealPlan.find((m) => m.day === todayKey) || mealPlan[0];
+  const currentDayItem = getMealItemForDate(mealPlan, formatISODate(now));
   const currentMeal =
     currentDayItem?.meals?.abendessen ||
     currentDayItem?.meals?.mittagessen ||
@@ -94,15 +96,15 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
   for (let i = 1; i <= 6; i++) {
     const d = new Date(now);
     d.setDate(now.getDate() + i);
-    const dKey = dayKeys[d.getDay()];
-    const mItem = mealPlan.find((m) => m.day === dKey);
+    const dKey = formatISODate(d);
+    const mItem = getMealItemForDate(mealPlan, dKey);
     const single = mItem?.meals?.abendessen || mItem?.meals?.mittagessen || mItem?.meals?.fruehstueck || null;
     next6Meals.push({
       dayKey: dKey,
       dayShort: dayIndexToShort[d.getDay()],
       dish: single?.title || 'Menü planen',
-      cook: d.getDay() === 6 || d.getDay() === 0 ? 'alle' : 'Familie',
-      img: single?.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80',
+      cook: single?.cookTime || '',
+      img: single?.image || '',
       raw: single
     });
   }
@@ -115,8 +117,9 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
   sunday.setDate(monday.getDate() + 6);
   const weekLabel = `Woche ${monday.getDate()}. – ${sunday.getDate()}. ${GERMAN_MONTHS_SHORT[sunday.getMonth()]}`;
 
-  // Waste items
-  const wasteItems = calculateWasteSchedule(now);
+  // Waste pickups from the uploaded calendar only (no invented dates)
+  const wasteEvents = state.settings.wasteCalendarEvents || [];
+  const wasteItems = wasteEvents.length > 0 ? getUpcomingWasteSchedule(wasteEvents, now) : [];
 
   // Shopping list counts & categorization
   const openCount = state.shoppingList.filter((i) => !i.checked).length;
@@ -172,15 +175,17 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
               Heute · {dayName}
             </span>
             <h2 className="font-serif text-[38px] lg:text-[42px] leading-[1.04] text-white drop-shadow-sm group-hover:text-amber-100 transition-colors">
-              {currentMeal?.title || 'Heutiges Gericht'}
+              {currentMeal?.title || 'Noch nichts geplant'}
             </h2>
             <p className="text-[12.5px] font-[500] text-white/85 line-clamp-1">
-              {currentMeal?.category ? `${currentMeal.category} · frisch zubereitet` : 'Frisch aus der Küche'}
+              {currentMeal ? (currentMeal.category ? `${currentMeal.category} · frisch zubereitet` : 'Frisch aus der Küche') : 'Tippen, um ein Gericht zu planen'}
             </p>
             <div className="flex items-center gap-2.5 mt-1.5">
-              <span className="text-[11.5px] font-[700] text-white bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-                {currentDayItem?.day === 'sa' ? 'alle kochen' : 'Unsere Küche'}
-              </span>
+              {currentMeal?.cookTime && (
+                <span className="text-[11.5px] font-[700] text-white bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                  ⏱ {currentMeal.cookTime}
+                </span>
+              )}
               <span className="text-[11.5px] font-[600] text-white/70">
                 {weekLabel}
               </span>
@@ -194,6 +199,9 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
             Müllabfuhr
           </span>
           <div className="flex flex-col gap-1.5">
+            {wasteItems.length === 0 && (
+              <span className="text-[12.5px] font-[600] text-[var(--skyInk)]">Noch kein Müllkalender hinterlegt</span>
+            )}
             {wasteItems.map((w) => (
               <div key={w.id} className="flex items-center gap-2.5 text-[13.5px]">
                 <span
@@ -275,11 +283,15 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
               className="flex-1 min-w-0 bg-[var(--card)] rounded-[18px] overflow-hidden flex flex-col shadow-2xs border border-[var(--wash)] cursor-pointer group hover:shadow-xs active:scale-[0.98] transition-all"
             >
               <div className="h-[95px] lg:h-[105px] shrink-0 bg-[var(--photo)] overflow-hidden">
-                <img
-                  src={m.img}
-                  alt={m.dish}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                {m.img ? (
+                  <img
+                    src={m.img}
+                    alt={m.dish}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[24px] font-[300] text-[var(--faint)]">+</div>
+                )}
               </div>
               <div className="flex-1 min-h-0 p-2.5 flex flex-col justify-between">
                 <span className="text-[9.5px] tracking-[0.14em] font-[800] text-[var(--faint)]">

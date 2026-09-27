@@ -7,13 +7,14 @@ import confetti from 'canvas-confetti';
 import { MealItem, MealType, SingleMeal } from '../types';
 import { PRESET_DISH_TEMPLATES } from '../utils/defaults';
 import { autoFindFoodImage, getNextFoodImage, getFoodImageOptions, processUploadedImage } from '../utils/foodImageFinder';
+import { splitIngredientText } from '../utils/ingredients';
 import { sounds } from '../utils/audio';
 
 interface MealPlanWidgetProps {
   mealPlan: MealItem[];
   onUpdateMeal?: (day: string, partial: Partial<MealItem>) => void;
   onUpdateMealSlot?: (day: string, mealType: MealType, slot: SingleMeal | null) => void;
-  onAddIngredientsToShopping: (ingredients: string[]) => void;
+  onAddIngredientsToShopping: (ingredients: string[]) => number | void;
 }
 
 export const MealPlanWidget: React.FC<MealPlanWidgetProps> = ({
@@ -109,10 +110,7 @@ export const MealPlanWidget: React.FC<MealPlanWidgetProps> = ({
     e.preventDefault();
     if (!editTitle.trim()) return;
     sounds.playTick();
-    const ings = editIngredients
-      .split(',')
-      .map((i) => i.trim())
-      .filter(Boolean);
+    const ings = splitIngredientText(editIngredients);
 
     const slotPayload: SingleMeal = {
       title: editTitle.trim(),

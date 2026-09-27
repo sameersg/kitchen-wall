@@ -165,12 +165,14 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
             Heute · {dayName}
           </span>
           <h2 className="font-serif font-[400] text-[40px] md:text-[46px] leading-[1.02] text-white drop-shadow-sm group-hover:text-amber-100 transition-colors">
-            {todayDishName || 'Heutiges Gericht'}
+            {todayDishName || 'Noch nichts geplant'}
           </h2>
           <div className="flex items-center gap-2.5 mt-1 flex-wrap">
-            <span className="text-[11px] md:text-[12px] font-[700] text-white bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 shadow-xs">
-              {todayCook || 'Küche kocht'}
-            </span>
+            {todayCook && (
+              <span className="text-[11px] md:text-[12px] font-[700] text-white bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 shadow-xs">
+                {todayCook}
+              </span>
+            )}
             {todayNote && (
               <span className="text-[12px] md:text-[13px] font-[500] text-white/85 line-clamp-1">
                 {todayNote}

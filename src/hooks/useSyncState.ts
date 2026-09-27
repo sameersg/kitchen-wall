@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { AppState, ShoppingItem, KitchenNote, DashboardSettings, ShoppingCategory, NoteColor, MealItem, MealType, SingleMeal } from '../types';
 import { INITIAL_STATE, normalizeMealItem } from '../utils/defaults';
 import { parseISODate, formatISODate, getISOWeek } from '../utils/dateUtils';
+import { parseIngredient, categorizeIngredient, ingredientKey } from '../utils/ingredients';
 
 const STORAGE_KEY = 'kitchen_wall_app_state_v1';
 const UNSYNCED_KEY = 'kitchen_wall_unsynced_v1';
@@ -28,7 +29,7 @@ export function mergeState(saved: any): AppState {
     ...saved,
     shoppingList: Array.isArray(saved.shoppingList) ? saved.shoppingList : INITIAL_STATE.shoppingList,
     notes: Array.isArray(saved.notes) ? saved.notes : INITIAL_STATE.notes,
-    mealPlan: Array.isArray(saved.mealPlan) && saved.mealPlan.length > 0 ? saved.mealPlan.map(normalizeMealItem) : INITIAL_STATE.mealPlan,
+    mealPlan: Array.isArray(saved.mealPlan) ? saved.mealPlan.map(normalizeMealItem) : INITIAL_STATE.mealPlan,
     customCalendarEvents: Array.isArray(saved.customCalendarEvents) ? saved.customCalendarEvents : INITIAL_STATE.customCalendarEvents,
     settings: {
       ...INITIAL_STATE.settings,
@@ -439,6 +440,52 @@ export function useSyncState() {
     }));
   }, [updateState]);
 
+  /**
+   * Puts a dish's ingredients on the shopping list (and into Bring! when connected).
+   * Items already open on the list are skipped, ticked-off ones are re-opened.
+   * Returns how many items were added or re-opened.
+   */
+  const addMealIngredientsToShopping = useCallback((mealOrIngredients: string[] | { ingredients?: string[] }) => {
+    const rawList = Array.isArray(mealOrIngredients) ? mealOrIngredients : mealOrIngredients?.ingredients || [];
+    const current = stateRef.current.shoppingList;
+    const byKey = new Map(current.map((item) => [ingredientKey(item.name), item]));
+    const newItems: ShoppingItem[] = [];
+    const reopened: ShoppingItem[] = [];
+
+    for (const raw of rawList) {
+      const { name, amount } = parseIngredient(raw);
+      if (!name) continue;
+      const key = ingredientKey(name);
+      const existing = byKey.get(key);
+      if (existing) {
+        if (existing.checked && !reopened.includes(existing)) reopened.push(existing);
+        continue;
+      }
+      const item: ShoppingItem = {
+        id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+        name,
+        amount,
+        category: categorizeIngredient(name),
+        checked: false,
+        createdAt: Date.now()
+      };
+      newItems.push(item);
+      byKey.set(key, item);
+    }
+
+    if (newItems.length === 0 && reopened.length === 0) return 0;
+    const reopenedIds = new Set(reopened.map((i) => i.id));
+    updateState((prev) => ({
+      ...prev,
+      shoppingList: [
+        ...newItems,
+        ...prev.shoppingList.map((item) => (reopenedIds.has(item.id) ? { ...item, checked: false } : item))
+      ]
+    }));
+    [...newItems, ...reopened].forEach((item) => pushBringAction('save', item.name, item.amount || ''));
+    return newItems.length + reopened.length;
+  }, [updateState, pushBringAction]);
+
   const updateMeal = useCallback((dayOrDate: string, partial: Partial<MealItem>) => {
     updateState((prev) => {
       const isDate = /^\d{4}-\d{2}-\d{2}$/.test(dayOrDate);
@@ -478,6 +525,11 @@ export function useSyncState() {
   }, [updateState]);
 
   const updateMealSlot = useCallback((dayOrDate: string, mealType: MealType, slot: SingleMeal | null) => {
+    const isDateKey = /^\d{4}-\d{2}-\d{2}$/.test(dayOrDate);
+    const previousSlot = stateRef.current.mealPlan.find((m) =>
+      isDateKey ? m.date === dayOrDate : m.day === dayOrDate
+    )?.meals?.[mealType];
+
     updateState((prev) => {
       const isDate = /^\d{4}-\d{2}-\d{2}$/.test(dayOrDate);
       const existingIdx = prev.mealPlan.findIndex((m) =>
@@ -522,43 +574,15 @@ export function useSyncState() {
 
       return prev;
     });
-  }, [updateState]);
 
-  const addMealIngredientsToShopping = useCallback((mealOrIngredients: string[] | { ingredients?: string[] }) => {
-    let rawList: string[] = [];
-    if (Array.isArray(mealOrIngredients)) {
-      rawList = mealOrIngredients;
-    } else if (mealOrIngredients?.ingredients) {
-      rawList = mealOrIngredients.ingredients;
+    // New dish or newly added ingredients go straight onto the shopping list (and Bring!)
+    if (slot?.ingredients?.length) {
+      const sameDish = previousSlot && previousSlot.title.trim().toLowerCase() === slot.title.trim().toLowerCase();
+      const known = new Set((sameDish ? previousSlot?.ingredients || [] : []).map((ing) => ingredientKey(parseIngredient(ing).name)));
+      const added = slot.ingredients.filter((ing) => !known.has(ingredientKey(parseIngredient(ing).name)));
+      if (added.length > 0) addMealIngredientsToShopping(added);
     }
-    if (!rawList || rawList.length === 0) return;
-
-    const newItems: ShoppingItem[] = rawList.map((ing: string) => {
-      let cat: ShoppingCategory = 'vorrat';
-      const lower = ing.toLowerCase();
-      if (lower.includes('tomate') || lower.includes('avocado') || lower.includes('spinat') || lower.includes('paprika') || lower.includes('zucchini') || lower.includes('kartoffel') || lower.includes('gemüse') || lower.includes('salat') || lower.includes('heidelbeer') || lower.includes('beere') || lower.includes('gurke') || lower.includes('zitrone') || lower.includes('ingwer') || lower.includes('kürbis') || lower.includes('apfel') || lower.includes('banane')) {
-        cat = 'gemuese';
-      } else if (lower.includes('milch') || lower.includes('burrata') || lower.includes('mozzarella') || lower.includes('parmesan') || lower.includes('butter') || lower.includes('lachs') || lower.includes('cheddar') || lower.includes('tofu') || lower.includes('ei') || lower.includes('joghurt') || lower.includes('feta') || lower.includes('quark') || lower.includes('sahne')) {
-        cat = 'kuehlregal';
-      } else if (lower.includes('brot') || lower.includes('bun') || lower.includes('croissant') || lower.includes('baguette') || lower.includes('toast') || lower.includes('brötchen')) {
-        cat = 'baeckerei';
-      }
-      return {
-        id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
-        name: ing,
-        amount: '',
-        category: cat,
-        checked: false,
-        createdAt: Date.now()
-      };
-    });
-
-    updateState((prev) => ({
-      ...prev,
-      shoppingList: [...newItems, ...prev.shoppingList]
-    }));
-    newItems.forEach((item) => pushBringAction('save', item.name));
-  }, [updateState, pushBringAction]);
+  }, [updateState, addMealIngredientsToShopping]);
 
   const updateSettings = useCallback((partial: Partial<DashboardSettings>) => {
     updateState((prev) => ({
