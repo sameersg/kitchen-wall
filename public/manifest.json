@@ -1,16 +1,16 @@
 {
-  "short_name": "Küche",
+  "short_name": "Kitchen Wall",
   "name": "Kitchen Wall",
   "icons": [
-    {
-      "src": "/kitchen-icon.svg",
-      "type": "image/svg+xml",
-      "sizes": "192x192 512x512"
-    }
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "/icon-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" },
+    { "src": "/kitchen-icon.svg", "type": "image/svg+xml", "sizes": "any" }
   ],
   "start_url": "/",
-  "background_color": "#0e131f",
-  "theme_color": "#0e131f",
+  "scope": "/",
+  "background_color": "#efece4",
+  "theme_color": "#efece4",
   "display": "standalone",
-  "orientation": "any"
+  "orientation": "landscape"
 }

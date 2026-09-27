@@ -62,7 +62,7 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
   const weather = useDashboardWeather(settings.weatherLat, settings.weatherLon);
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
+    const timer = setInterval(() => setNow(new Date()), 5000);
     return () => clearInterval(timer);
   }, []);
 
@@ -144,7 +144,7 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden p-3.5 bg-[var(--bg)] text-[var(--ink)] font-sans antialiased select-none flex gap-3.5 transition-colors">
+    <div className="w-full h-full kw-safe overflow-hidden p-3.5 bg-[var(--bg)] text-[var(--ink)] font-sans antialiased select-none flex gap-3.5 transition-colors">
       {/* Left Column: Big Hero Card + Waste Schedule */}
       <div className="w-[340px] lg:w-[356px] shrink-0 flex flex-col gap-3.5 min-h-0">
         {/* Today's Dish Hero Card */}
@@ -194,7 +194,7 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
         </div>
 
         {/* Waste Schedule Card (Sky Blue) */}
-        <div className="shrink-0 bg-[var(--sky)] rounded-[22px] p-4 flex flex-col gap-2 border border-[var(--wash)]/40">
+        <div className="shrink-0 bg-[var(--sky)] rounded-[22px] p-4 flex flex-col gap-2">
           <span className="text-[13px] font-[800] text-[var(--skyInk)]">
             Müllabfuhr
           </span>
@@ -311,7 +311,7 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
         {/* Bottom: 3 Cards (Einkauf, Anlässe, Pinnwand) */}
         <div className="flex-1 min-h-0 grid grid-cols-[1.12fr_1fr_0.92fr] gap-3">
           {/* Einkauf (Green) */}
-          <div className="bg-[var(--green)] rounded-[22px] p-4 flex flex-col gap-2 min-h-0 border border-[var(--wash)]/40">
+          <div className="bg-[var(--green)] rounded-[22px] p-4 flex flex-col gap-2 min-h-0">
             <div className="flex items-baseline justify-between shrink-0">
               <span className="text-[14px] font-[800] text-[var(--greenInk)]">Einkauf</span>
               <span className="text-[11px] font-[600] text-[var(--greenSoft)]">{openLabel}</span>
@@ -363,7 +363,7 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
           </div>
 
           {/* Anlässe (Blush) */}
-          <div className="bg-[var(--blush)] rounded-[22px] p-4 flex flex-col gap-2 min-h-0 border border-[var(--wash)]/40">
+          <div className="bg-[var(--blush)] rounded-[22px] p-4 flex flex-col gap-2 min-h-0">
             <div className="flex items-center justify-between shrink-0">
               <span className="text-[14px] font-[800] text-[var(--blushInk)]">Anlässe</span>
               {(onOpenCalendarSettings || onOpenSettings) && (
@@ -397,7 +397,7 @@ export const ClaudeColumnarDashboard: React.FC<ClaudeColumnarDashboardProps> = (
           </div>
 
           {/* Pinnwand (Butter) */}
-          <div className="bg-[var(--butter)] rounded-[22px] p-4 flex flex-col gap-2 min-h-0 border border-[var(--wash)]/40">
+          <div className="bg-[var(--butter)] rounded-[22px] p-4 flex flex-col gap-2 min-h-0">
             <span className="text-[14px] font-[800] text-[var(--butterInk)] shrink-0">Pinnwand</span>
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 pr-1 scrollbar-none">
               {state.notes.map((n) => (

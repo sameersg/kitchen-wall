@@ -23,7 +23,7 @@ export const ClaudeQrModal: React.FC<ClaudeQrModalProps> = ({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 bg-[rgba(20,19,16,0.62)] backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 bg-[rgba(20,19,16,0.72)] flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
     >
       <div
         onClick={(e) => e.stopPropagation()}

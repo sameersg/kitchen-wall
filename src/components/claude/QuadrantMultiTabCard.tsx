@@ -78,7 +78,7 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
   };
 
   return (
-    <div className="bg-[var(--butter)] rounded-[26px] p-[22px_24px_18px] md:p-[24px_26px_20px] flex flex-col gap-3 min-h-0 h-full w-full select-none shadow-xs border border-[var(--wash)]/40 transition-colors">
+    <div className="bg-[var(--butter)] rounded-[26px] p-[22px_24px_18px] md:p-[24px_26px_20px] flex flex-col gap-3 min-h-0 h-full w-full select-none  transition-colors">
       {/* Tab Switcher Pills */}
       <div className="flex items-center gap-2 shrink-0">
         {(['Anlässe', 'Pinnwand', 'Müll'] as const).map((tab) => {
@@ -103,7 +103,7 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
           <button
             type="button"
             onClick={onOpenCalendarSettings}
-            className={`ml-auto text-[11px] font-[700] px-2.5 py-1 rounded-full flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`ml-auto text-[11px] font-[700] px-2.5 py-1 rounded-full flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-all cursor-pointer ${
               isCalendarLive
                 ? 'bg-[var(--wash)] text-[var(--butterInk)] hover:text-[var(--ink)]'
                 : 'bg-[var(--wash)] text-[var(--blushInk)] hover:bg-white/80 shadow-2xs'
@@ -111,7 +111,7 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
             title="Google oder Apple Kalender konfigurieren"
           >
             <span className={`w-1.5 h-1.5 rounded-full ${isCalendarLive ? 'bg-emerald-600 animate-pulse' : 'bg-amber-500'}`} />
-            <span>{isCalendarLive ? (isCalendarSyncing ? 'Synchronisiert…' : 'Live Kalender') : '+ Kalender verknüpfen'}</span>
+            <span>{isCalendarLive ? (isCalendarSyncing ? 'Synchronisiert…' : 'Live Kalender') : '+ Kalender'}</span>
           </button>
         )}
 
@@ -119,7 +119,7 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
           <button
             type="button"
             onClick={onOpenWasteSettings}
-            className={`ml-auto text-[11px] font-[700] px-2.5 py-1 rounded-full flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`ml-auto text-[11px] font-[700] px-2.5 py-1 rounded-full flex items-center gap-1.5 whitespace-nowrap shrink-0 transition-all cursor-pointer ${
               isRealWasteActive
                 ? 'bg-[var(--wash)] text-[var(--butterInk)] hover:text-[var(--ink)]'
                 : 'bg-[var(--wash)] text-[var(--blushInk)] hover:bg-white/80 shadow-2xs'
@@ -127,7 +127,7 @@ export const QuadrantMultiTabCard: React.FC<QuadrantMultiTabCardProps> = ({
             title="Müllabfuhr-Kalender (.ics / Link) konfigurieren"
           >
             <span className={`w-1.5 h-1.5 rounded-full ${isRealWasteActive ? 'bg-emerald-600 animate-pulse' : 'bg-amber-500'}`} />
-            <span>{isRealWasteActive ? (wasteCalendarName || 'Echter Müllkalender') : '+ Müllkalender (.ics)'}</span>
+            <span>{isRealWasteActive ? (wasteCalendarName || 'Echter Müllkalender') : '+ Müllkalender'}</span>
           </button>
         )}
       </div>

@@ -1,8 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <rect width="512" height="512" rx="128" fill="#0f172a"/>
-  <circle cx="256" cy="256" r="180" stroke="#38bdf8" stroke-width="16" stroke-dasharray="8 8" opacity="0.4"/>
-  <path d="M160 280C140 280 120 260 120 230C120 205 138 185 160 180C165 140 200 110 245 110C270 110 295 122 310 140C325 125 350 120 370 135C390 150 395 175 390 195C405 205 415 220 415 240C415 265 395 280 375 280L160 280Z" fill="#38bdf8" opacity="0.9"/>
-  <rect x="150" y="295" width="232" height="36" rx="10" fill="#38bdf8"/>
-  <circle cx="256" cy="390" r="45" fill="#1e293b" stroke="#38bdf8" stroke-width="8"/>
-  <path d="M256 365V390L275 400" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Kitchen Wall app icon: the four dashboard tiles -->
+  <rect width="1024" height="1024" fill="#efece4"/>
+
+  <!-- Today: dark photo tile with a steaming bowl -->
+  <rect x="120" y="120" width="368" height="368" rx="76" fill="#2b2a26"/>
+  <path d="M190 292 h228 a114 114 0 0 1 -228 0 z" fill="#efece4"/>
+  <rect x="176" y="276" width="256" height="24" rx="12" fill="#efece4"/>
+  <g fill="none" stroke="#e8b98e" stroke-width="18" stroke-linecap="round">
+    <path d="M256 236 c-18 -22 18 -38 0 -62"/>
+    <path d="M304 236 c-18 -22 18 -38 0 -62"/>
+    <path d="M352 236 c-18 -22 18 -38 0 -62"/>
+  </g>
+
+  <!-- Shopping: green tile with a checklist -->
+  <rect x="536" y="120" width="368" height="368" rx="76" fill="#dfe8da"/>
+  <rect x="598" y="194" width="62" height="62" rx="16" fill="none" stroke="#2f4c38" stroke-width="16"/>
+  <path d="M696 225 h150" stroke="#2f4c38" stroke-width="26" stroke-linecap="round"/>
+  <rect x="590" y="324" width="78" height="78" rx="20" fill="#2f4c38"/>
+  <path d="M609 364 l17 17 l29 -34" fill="none" stroke="#dfe8da" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M696 363 h110" stroke="#79886f" stroke-width="26" stroke-linecap="round"/>
+
+  <!-- Week: blush tile with breakfast / lunch / dinner rows -->
+  <rect x="120" y="536" width="368" height="368" rx="76" fill="#f3ded5"/>
+  <g stroke-width="26" stroke-linecap="round">
+    <path d="M186 634 h40" stroke="#75601f"/><path d="M270 634 h150" stroke="#85462a"/>
+    <path d="M186 720 h40" stroke="#2f4c38"/><path d="M270 720 h110" stroke="#85462a"/>
+    <path d="M186 806 h40" stroke="#85462a"/><path d="M270 806 h136" stroke="#85462a"/>
+  </g>
+
+  <!-- Occasions: butter tile with a calendar -->
+  <rect x="536" y="536" width="368" height="368" rx="76" fill="#f4ead0"/>
+  <rect x="612" y="626" width="216" height="204" rx="34" fill="none" stroke="#75601f" stroke-width="20"/>
+  <path d="M612 692 h216" stroke="#75601f" stroke-width="20"/>
+  <path d="M668 600 v48 M772 600 v48" stroke="#75601f" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="770" cy="770" r="26" fill="#85462a"/>
 </svg>

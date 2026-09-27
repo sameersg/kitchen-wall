@@ -43,7 +43,7 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
   const weather = useDashboardWeather(weatherLat, weatherLon);
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
+    const timer = setInterval(() => setNow(new Date()), 5000);
     return () => clearInterval(timer);
   }, []);
 
@@ -60,20 +60,22 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
       ? `Hallo, ${householdName}`
       : `Guten Abend, ${householdName}`;
 
-  // Default fallback image if none provided
-  const bgImage =
-    todayDishImg ||
-    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80';
+  // Only a real dish photo; without one the card stays a calm dark surface
+  const bgImage = todayDishImg || '';
 
   return (
     <div className="relative rounded-[26px] overflow-hidden bg-[var(--photo)] min-h-0 h-full w-full select-none shadow-sm transition-all">
       {/* Background Food Photo */}
-      <img
-        src={bgImage}
-        alt={todayDishName}
-        className="absolute inset-0 w-full h-full object-cover"
-        loading="eager"
-      />
+      {bgImage ? (
+        <img
+          src={bgImage}
+          alt={todayDishName}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[#3a372f]" />
+      )}
 
       {/* Atmospheric dark gradient overlay from Claude Design */}
       <div className="absolute inset-0 bg-gradient-to-br from-[rgba(12,11,9,0.78)] via-[rgba(12,11,9,0.28)] to-[rgba(12,11,9,0.92)]" />

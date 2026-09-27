@@ -162,7 +162,7 @@ export function App() {
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-[var(--bg)] text-[var(--ink)] font-sans select-none relative">
+    <div className="w-full h-full overflow-hidden bg-[var(--bg)] text-[var(--ink)] font-sans select-none relative">
       {/* Dashboard View (Quadrant or Columnar) */}
       {layoutMode === 'quadrant' ? (
         <ClaudeQuadrantDashboard

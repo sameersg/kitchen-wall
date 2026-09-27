@@ -76,7 +76,7 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
     : 'Tippen, um ein Gericht zu planen';
 
   return (
-    <div className="w-screen h-screen overflow-hidden p-3 md:p-3.5 bg-[var(--bg)] text-[var(--ink)] font-sans antialiased select-none grid grid-cols-2 grid-rows-2 gap-3 md:gap-3.5 transition-colors">
+    <div className="w-full h-full kw-safe overflow-hidden p-3 md:p-3.5 bg-[var(--bg)] text-[var(--ink)] font-sans antialiased select-none grid grid-cols-2 grid-rows-2 gap-3 md:gap-3.5 transition-colors">
       {/* Quadrant 1: Top-Left Hero Card */}
       <QuadrantHeroCard
         householdName={settings.dashboardName || 'Unsere Küche'}

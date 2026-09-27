@@ -93,7 +93,7 @@ export const DayMealsModal: React.FC<DayMealsModalProps> = ({
   return (
     <div
       onClick={handleDone}
-      className="fixed inset-0 bg-[rgba(20,19,16,0.62)] backdrop-blur-[6px] flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-[rgba(20,19,16,0.72)] flex items-center justify-center z-50 p-4"
     >
       <div
         onClick={(e) => e.stopPropagation()}

@@ -67,12 +67,26 @@
   --btnInk: #17181a;
 }
 
+/* Full height that follows Safari's toolbars (100vh is too tall in a Safari tab) */
+html, body, #root { height: 100%; }
+@supports (height: 100dvh) {
+  html, body { height: 100dvh; }
+}
+
+/* Room for the iPad status bar when opened from the Home Screen */
+.kw-safe {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
 @layer base {
   html, body {
     margin: 0;
     padding: 0;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
     user-select: none;
     -webkit-user-select: none;

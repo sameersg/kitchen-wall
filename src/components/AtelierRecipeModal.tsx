@@ -106,7 +106,7 @@ export const AtelierRecipeModal: React.FC<AtelierRecipeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-[#fcfaf6] rounded-[24px] border border-white/80 shadow-2xl p-5 md:p-6 max-w-lg w-full max-h-[90vh] flex flex-col relative text-[var(--ink)]">
         {/* Close Button */}
         <button 

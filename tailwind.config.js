@@ -47,13 +47,13 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['"Manrope"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        sans: ['"Manrope"', 'system-ui', 'sans-serif'],
         manrope: ['"Manrope"', 'Helvetica', 'sans-serif'],
-        serif: ['"Instrument Serif"', '"Epilogue"', 'serif'],
+        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
         instrument: ['"Instrument Serif"', 'Georgia', 'serif'],
         editorial: ['"Newsreader"', 'serif'],
         hand: ['"Caveat"', 'cursive'],
-        mono: ['"Space Grotesk"', 'monospace']
+        mono: ['"Manrope"', 'system-ui', 'sans-serif']
       },
       boxShadow: {
         'folio': '0 20px 45px -15px rgba(45, 30, 20, 0.12), 0 4px 12px -2px rgba(45, 30, 20, 0.05)',

@@ -100,7 +100,7 @@ export const QuadrantShoppingCard: React.FC<QuadrantShoppingCardProps> = ({
   };
 
   return (
-    <div className="bg-[var(--green)] rounded-[26px] p-[22px_24px_16px] md:p-[24px_26px_18px] flex flex-col gap-3 min-h-0 h-full w-full select-none shadow-xs border border-[var(--wash)]/40 transition-colors">
+    <div className="bg-[var(--green)] rounded-[26px] p-[22px_24px_16px] md:p-[24px_26px_18px] flex flex-col gap-3 min-h-0 h-full w-full select-none  transition-colors">
       {/* Header: Title & open count */}
       <div className="flex items-baseline justify-between shrink-0">
         <div className="flex items-center space-x-2">
@@ -113,7 +113,7 @@ export const QuadrantShoppingCard: React.FC<QuadrantShoppingCardProps> = ({
               onClick={handleSync}
               disabled={isSyncing}
               title={`Bring! (${bringSettings.listName || 'Standard'}) synchronisieren`}
-              className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-[700] bg-white/70 hover:bg-white text-[var(--greenInk)] border border-[var(--wash)] transition cursor-pointer shadow-2xs disabled:opacity-60"
+              className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-[700] bg-[var(--wash)] text-[var(--greenInk)] transition cursor-pointer disabled:opacity-60"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               <span>Bring!</span>

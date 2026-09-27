@@ -57,7 +57,7 @@ export const QuadrantWeekCard: React.FC<QuadrantWeekCardProps> = ({ mealPlan, on
     'w-[38px] h-[38px] rounded-full bg-[var(--wash)] flex items-center justify-center text-[20px] font-[700] text-[var(--blushInk)] hover:text-[var(--ink)] active:scale-95 transition-all cursor-pointer select-none';
 
   return (
-    <div className="bg-[var(--blush)] rounded-[26px] p-[22px_24px_18px] md:p-[24px_26px_20px] flex flex-col gap-3.5 min-h-0 h-full w-full select-none shadow-xs border border-[var(--wash)]/40 transition-colors">
+    <div className="bg-[var(--blush)] rounded-[26px] p-[22px_24px_18px] md:p-[24px_26px_20px] flex flex-col gap-3.5 min-h-0 h-full w-full select-none  transition-colors">
       {/* Header: title and page navigation */}
       <div className="flex items-center justify-between gap-3 shrink-0">
         <span className="text-[20px] md:text-[22px] font-[800] text-[var(--blushInk)] tracking-tight">
@@ -121,7 +121,7 @@ export const QuadrantWeekCard: React.FC<QuadrantWeekCardProps> = ({ mealPlan, on
                 </div>
               ))}
               {day.slots.length === 0 && (
-                <span className="text-[12px] font-[700] text-[var(--blushSoft)]">+ Mahlzeit planen</span>
+                <span className="text-[12px] font-[700] text-[var(--blushSoft)] whitespace-nowrap truncate">+ Planen</span>
               )}
             </div>
           </div>
