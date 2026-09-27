@@ -47,13 +47,13 @@ export function App() {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [settingsInitialTab, setSettingsInitialTab] = useState<'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'radio' | 'bookmarks'>('name');
+  const [settingsInitialTab, setSettingsInitialTab] = useState<'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'bookmarks'>('name');
   const [isScreensaverOpen, setIsScreensaverOpen] = useState(false);
   const [editingDayKey, setEditingDayKey] = useState<string | null>(null);
   const [editingMealType, setEditingMealType] = useState<MealType | null>(null);
   const [dayModalDate, setDayModalDate] = useState<string | null>(null);
 
-  const handleOpenSettings = (tab: 'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'radio' | 'bookmarks' = 'name') => {
+  const handleOpenSettings = (tab: 'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'bookmarks' = 'name') => {
     setSettingsInitialTab(tab);
     setIsSettingsOpen(true);
   };
@@ -61,7 +61,7 @@ export function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const settingsParam = params.get('settings');
-    if (settingsParam && ['name', 'widgets', 'calendar', 'bring', 'weather', 'timers', 'radio', 'bookmarks'].includes(settingsParam)) {
+    if (settingsParam && ['name', 'widgets', 'calendar', 'bring', 'weather', 'timers', 'bookmarks'].includes(settingsParam)) {
       setSettingsInitialTab(settingsParam as any);
       setIsSettingsOpen(true);
     }

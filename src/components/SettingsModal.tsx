@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { 
-  X, Settings, Calendar, Radio, Timer, Bookmark, 
+  X, Settings, Calendar, Timer, Bookmark, 
   MapPin, Plus, Trash2, RotateCcw, Check, Sparkles, ExternalLink, Upload, Search,
   ShoppingCart, RefreshCw, LogOut
 } from 'lucide-react';
-import { DashboardSettings, TimerPreset, RadioStation, QuickBookmark, CalendarFeed, DashboardPalette } from '../types';
+import { DashboardSettings, TimerPreset, QuickBookmark, CalendarFeed, DashboardPalette } from '../types';
 import { parseIcsContent } from '../utils/wasteParser';
 import { sounds } from '../utils/audio';
 
@@ -14,7 +14,7 @@ interface SettingsModalProps {
   settings: DashboardSettings;
   onUpdateSettings: (partial: Partial<DashboardSettings>) => void;
   onReset: () => void;
-  initialTab?: 'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'radio' | 'bookmarks';
+  initialTab?: 'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'bookmarks';
 }
 
 const PALETTES: Array<{ name: DashboardPalette; colors: string[] }> = [
@@ -41,7 +41,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onReset,
   initialTab = 'name'
 }) => {
-  const [activeTab, setActiveTab] = useState<'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'radio' | 'bookmarks'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'bookmarks'>(initialTab);
   const [dashboardNameInput, setDashboardNameInput] = useState(settings.dashboardName || 'Cucina Atelier');
   const [calUrlInput, setCalUrlInput] = useState(settings.googleCalendarIcalUrl || '');
 
@@ -86,9 +86,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [newPresetLabel, setNewPresetLabel] = useState('');
   const [newPresetMinutes, setNewPresetMinutes] = useState('5');
 
-  const [newRadioName, setNewRadioName] = useState('');
-  const [newRadioGenre, setNewRadioGenre] = useState('');
-  const [newRadioUrl, setNewRadioUrl] = useState('');
 
   const [newBmTitle, setNewBmTitle] = useState('');
   const [newBmUrl, setNewBmUrl] = useState('');
@@ -363,31 +360,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     });
   };
 
-  const handleAddRadio = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newRadioName.trim() || !newRadioUrl.trim()) return;
-    const newStation: RadioStation = {
-      id: 'radio_' + Date.now(),
-      name: newRadioName.trim(),
-      genre: newRadioGenre.trim() || 'Custom',
-      url: newRadioUrl.trim()
-    };
-    onUpdateSettings({
-      customStations: [...settings.customStations, newStation]
-    });
-    setNewRadioName('');
-    setNewRadioGenre('');
-    setNewRadioUrl('');
-    sounds.playTick();
-  };
-
-  const handleRemoveRadio = (id: string) => {
-    sounds.playTick();
-    onUpdateSettings({
-      customStations: settings.customStations.filter((s) => s.id !== id)
-    });
-  };
-
   const handleAddBookmark = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBmTitle.trim() || !newBmUrl.trim()) return;
@@ -503,16 +475,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             Timer-Vorlagen
-          </button>
-          <button
-            onClick={() => setActiveTab('radio')}
-            className={`px-3.5 py-1.5 rounded-xl transition ${
-              activeTab === 'radio'
-                ? 'bg-[#e06236] text-white shadow-sm'
-                : 'text-[#786f65] hover:text-[#221e1a]'
-            }`}
-          >
-            Radio-Sender
           </button>
           <button
             onClick={() => setActiveTab('bookmarks')}
@@ -644,7 +606,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 { key: 'showShopping', title: 'Einkaufsliste (Sync mit iPhone)' },
                 { key: 'showNotes', title: 'Familien-Pinnwand & Notizen' },
                 { key: 'showConverter', title: 'Küchen-Umrechner (Cups, Ofen, Portionen)' },
-                { key: 'showRadio', title: 'Küchen-Webradio & Sound' },
                 { key: 'showBookmarks', title: 'Rezept-Schnell-Lesezeichen' }
               ].map((w) => {
                 const isVisible = settings[w.key as keyof DashboardSettings] as boolean;
@@ -1163,65 +1124,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Tab 5: Radio Stations */}
-          {activeTab === 'radio' && (
-            <div className="space-y-3">
-              <form onSubmit={handleAddRadio} className="p-3.5 rounded-2xl bg-[#faf8f4] border border-[#ece7de] space-y-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    placeholder="Sendername (z.B. Radio Eins)"
-                    value={newRadioName}
-                    onChange={(e) => setNewRadioName(e.target.value)}
-                    className="bg-white text-xs text-[#221e1a] px-3 py-2 rounded-xl border border-[#ece7de]"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Genre (z.B. Pop / News)"
-                    value={newRadioGenre}
-                    onChange={(e) => setNewRadioGenre(e.target.value)}
-                    className="bg-white text-xs text-[#221e1a] px-3 py-2 rounded-xl border border-[#ece7de]"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Stream-URL (mp3/aac stream)"
-                    value={newRadioUrl}
-                    onChange={(e) => setNewRadioUrl(e.target.value)}
-                    className="flex-1 bg-white text-xs text-[#221e1a] px-3 py-2 rounded-xl border border-[#ece7de]"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-[#e06236] hover:bg-[#c2410c] text-white font-bold rounded-xl text-xs shadow-sm"
-                  >
-                    Hinzufügen
-                  </button>
-                </div>
-              </form>
-
-              <div className="space-y-1.5">
-                {settings.customStations.map((station) => (
-                  <div
-                    key={station.id}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-[#faf8f4] border border-[#ece7de] text-xs"
-                  >
-                    <div>
-                      <span className="text-[#221e1a] font-medium block">{station.name}</span>
-                      <span className="text-[10px] text-[#786f65]">{station.genre}</span>
-                    </div>
-                    <button
-                      onClick={() => handleRemoveRadio(station.id)}
-                      className="text-[#786f65] hover:text-[#c2410c] p-1"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 ))}
               </div>

@@ -1,4 +1,4 @@
-import { AppState, TimerPreset, RadioStation, QuickBookmark, MealItem } from '../types';
+import { AppState, TimerPreset, QuickBookmark, MealItem } from '../types';
 import { getISOWeek, parseISODate } from './dateUtils';
 
 export const DEFAULT_TIMER_PRESETS: TimerPreset[] = [
@@ -8,39 +8,6 @@ export const DEFAULT_TIMER_PRESETS: TimerPreset[] = [
   { id: 'pasta', label: 'Nudeln al dente', seconds: 540, iconName: 'Utensils' },
   { id: 'pizza', label: 'Pizza / Ofen', seconds: 900, iconName: 'Flame' },
   { id: 'dough', label: 'Teig gehen lassen', seconds: 1800, iconName: 'Timer' },
-];
-
-export const DEFAULT_RADIO_STATIONS: RadioStation[] = [
-  {
-    id: 'lofi',
-    name: 'Lofi Hip Hop / Chillout',
-    genre: 'Lo-Fi Chill',
-    url: 'https://stream.zeno.fm/f3wvbbqmdg8uv'
-  },
-  {
-    id: 'jazz',
-    name: 'Café Paris Jazz',
-    genre: 'Jazz & Swing',
-    url: 'https://stream.zeno.fm/87v5t1e2m0hvv'
-  },
-  {
-    id: 'pop',
-    name: 'Hitradio Pop & Dance',
-    genre: 'Pop / Charts',
-    url: 'https://stream.zeno.fm/4w9rzqz1xh8uv'
-  },
-  {
-    id: 'classical',
-    name: 'Klassik Radio Küche',
-    genre: 'Klassik & Piano',
-    url: 'https://stream.zeno.fm/0r0xa792kwzuv'
-  },
-  {
-    id: 'news',
-    name: 'Info & Talk',
-    genre: 'Nachrichten',
-    url: 'https://stream.zeno.fm/wr7a2v73d8zuv'
-  }
 ];
 
 export const DEFAULT_BOOKMARKS: QuickBookmark[] = [
@@ -236,7 +203,6 @@ export const INITIAL_STATE: AppState = {
     showTimers: true,
     showShopping: true,
     showNotes: true,
-    showRadio: true,
     showConverter: true,
     showBookmarks: true,
     showMealPlan: true,
@@ -255,7 +221,6 @@ export const INITIAL_STATE: AppState = {
     weatherLon: 13.405,
     dashboardName: 'Kitchen Wall',
     customTimerPresets: DEFAULT_TIMER_PRESETS,
-    customStations: DEFAULT_RADIO_STATIONS,
     customBookmarks: DEFAULT_BOOKMARKS
   },
   lastUpdated: Date.now()

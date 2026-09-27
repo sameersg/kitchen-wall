@@ -43,13 +43,6 @@ export interface TimerPreset {
   iconName?: string;
 }
 
-export interface RadioStation {
-  id: string;
-  name: string;
-  url: string;
-  genre: string;
-}
-
 export interface QuickBookmark {
   id: string;
   title: string;
@@ -130,7 +123,6 @@ export interface DashboardSettings {
   showTimers: boolean;
   showShopping: boolean;
   showNotes: boolean;
-  showRadio: boolean;
   showConverter: boolean;
   showBookmarks: boolean;
   showMealPlan: boolean;
@@ -147,7 +139,6 @@ export interface DashboardSettings {
   /** Colour palette of the dashboard (dark mode overrides it at night) */
   palette?: DashboardPalette;
   customTimerPresets: TimerPreset[];
-  customStations: RadioStation[];
   customBookmarks: QuickBookmark[];
 }
 
