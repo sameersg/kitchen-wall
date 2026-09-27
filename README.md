@@ -69,7 +69,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/sameersg/kitchen-wall/ma
 ```
 Das Skript lädt das Debian-12-Template, erstellt einen unprivilegierten LXC (1 Kern, 1 GB RAM, 4 GB Disk, Autostart mit Proxmox) und installiert darin Kitchen Wall als Dienst. Am Ende wird die Adresse fürs iPad angezeigt.
 
-Anpassen per Variablen, z.B. feste IP und anderer Speicher:
+Der Speicher (z.B. `local-lvm` oder `local-zfs`) wird automatisch erkannt. Anpassen per Variablen, z.B. feste IP und bestimmter Speicher:
 ```bash
 CT_IP=192.168.178.50/24 CT_GATEWAY=192.168.178.1 CT_STORAGE=local-zfs \
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/sameersg/kitchen-wall/main/deploy/proxmox-lxc.sh)"

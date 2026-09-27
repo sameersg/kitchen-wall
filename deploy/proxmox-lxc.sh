@@ -7,8 +7,8 @@
 # Options (environment variables, all optional):
 #   CT_ID=<next free id>      Container ID
 #   CT_HOSTNAME=kitchenwall
-#   CT_STORAGE=local-lvm      Storage for the root disk
-#   CT_TEMPLATE_STORAGE=local Storage for the Debian template
+#   CT_STORAGE=<auto>         Storage for the root disk (auto: local-lvm, local-zfs, ...)
+#   CT_TEMPLATE_STORAGE=<auto> Storage for the Debian template (auto: local, ...)
 #   CT_BRIDGE=vmbr0
 #   CT_IP=dhcp                or static, e.g. 192.168.178.50/24
 #   CT_GATEWAY=               required with a static IP, e.g. 192.168.178.1
@@ -23,8 +23,8 @@ REPO_RAW="${KW_REPO_RAW:-https://raw.githubusercontent.com/sameersg/kitchen-wall
 KW_BRANCH="${KW_BRANCH:-main}"
 KW_PORT="${KW_PORT:-3000}"
 CT_HOSTNAME="${CT_HOSTNAME:-kitchenwall}"
-CT_STORAGE="${CT_STORAGE:-local-lvm}"
-CT_TEMPLATE_STORAGE="${CT_TEMPLATE_STORAGE:-local}"
+CT_STORAGE="${CT_STORAGE:-}"
+CT_TEMPLATE_STORAGE="${CT_TEMPLATE_STORAGE:-}"
 CT_BRIDGE="${CT_BRIDGE:-vmbr0}"
 CT_IP="${CT_IP:-dhcp}"
 CT_GATEWAY="${CT_GATEWAY:-}"
@@ -45,6 +45,50 @@ fi
 if [ "$CT_IP" != "dhcp" ] && [ -z "$CT_GATEWAY" ]; then
   die "Bei statischer IP bitte auch CT_GATEWAY setzen (z.B. CT_GATEWAY=192.168.178.1)."
 fi
+
+# --- Storage ----------------------------------------------------------------
+# Active storages that can hold the given content type (rootdir / vztmpl)
+storages_for() {
+  pvesm status --content "$1" 2>/dev/null | awk 'NR > 1 && $3 == "active" { print $1 }'
+}
+
+# Pick the first preferred storage that exists, otherwise the first available one
+pick_storage() {
+  local content="$1"; shift
+  local available preferred
+  available="$(storages_for "$content")"
+  [ -n "$available" ] || return 1
+  for preferred in "$@"; do
+    if printf '%s\n' "$available" | grep -qx "$preferred"; then
+      echo "$preferred"
+      return 0
+    fi
+  done
+  printf '%s\n' "$available" | head -n1
+}
+
+check_storage() {
+  local storage="$1" content="$2"
+  if ! storages_for "$content" | grep -qx "$storage"; then
+    echo "Verfügbare Speicher für '$content':" >&2
+    storages_for "$content" | sed 's/^/    /' >&2
+    die "Speicher '$storage' existiert nicht oder unterstützt '$content' nicht."
+  fi
+}
+
+if [ -z "$CT_STORAGE" ]; then
+  CT_STORAGE="$(pick_storage rootdir local-lvm local-zfs local)" \
+    || die "Kein Speicher für Container-Disks gefunden (pvesm status --content rootdir)."
+fi
+check_storage "$CT_STORAGE" rootdir
+
+if [ -z "$CT_TEMPLATE_STORAGE" ]; then
+  CT_TEMPLATE_STORAGE="$(pick_storage vztmpl local)" \
+    || die "Kein Speicher für Container-Templates gefunden (pvesm status --content vztmpl)."
+fi
+check_storage "$CT_TEMPLATE_STORAGE" vztmpl
+
+info "Speicher: Disk auf '$CT_STORAGE', Template auf '$CT_TEMPLATE_STORAGE'"
 
 # --- Debian 12 template -----------------------------------------------------
 info "Suche Debian-12-Template ..."
