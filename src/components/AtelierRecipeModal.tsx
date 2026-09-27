@@ -12,6 +12,8 @@ interface AtelierRecipeModalProps {
   currentMeal?: SingleMeal | null;
   onSelectMeal: (meal: SingleMeal) => void;
   onAddIngredientsToShopping: (ingredients: string[]) => number | void;
+  /** Removes the meal from the plan */
+  onDeleteMeal?: () => void;
 }
 
 export const AtelierRecipeModal: React.FC<AtelierRecipeModalProps> = ({
@@ -20,7 +22,8 @@ export const AtelierRecipeModal: React.FC<AtelierRecipeModalProps> = ({
   dayLabel,
   currentMeal,
   onSelectMeal,
-  onAddIngredientsToShopping
+  onAddIngredientsToShopping,
+  onDeleteMeal
 }) => {
   const [selectedTab, setSelectedTab] = useState<'details' | 'edit' | 'presets'>('details');
 
@@ -220,6 +223,21 @@ export const AtelierRecipeModal: React.FC<AtelierRecipeModalProps> = ({
               >
                 <span>✏️ Name, Bild oder Zutaten anpassen</span>
               </button>
+
+              {currentMeal && onDeleteMeal && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!window.confirm(`„${currentMeal.title}“ aus dem Speiseplan entfernen?`)) return;
+                    sounds.playTick();
+                    onDeleteMeal();
+                    onClose();
+                  }}
+                  className="w-full py-2 text-xs font-bold text-[#a3432a] hover:bg-[#fbe9e2] rounded-xl transition-all cursor-pointer"
+                >
+                  Gericht entfernen
+                </button>
+              )}
             </div>
           )}
 

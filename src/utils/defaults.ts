@@ -1,4 +1,5 @@
-import { AppState, TimerPreset, RadioStation, QuickBookmark, MealItem, CalendarEvent } from '../types';
+import { AppState, TimerPreset, RadioStation, QuickBookmark, MealItem } from '../types';
+import { getISOWeek, parseISODate } from './dateUtils';
 
 export const DEFAULT_TIMER_PRESETS: TimerPreset[] = [
   { id: 'tea', label: 'Tee ziehen', seconds: 180, iconName: 'Coffee' },
@@ -49,6 +50,14 @@ export const DEFAULT_BOOKMARKS: QuickBookmark[] = [
   { id: 'springlane', title: 'Back-Ideen', url: 'https://www.springlane.de/magazin/rezeptideen/', category: 'Backen' }
 ];
 
+const DATE_ID = /^meal_(\d{4}-\d{2}-\d{2})$/;
+
+/**
+ * Brings a stored meal-plan entry into the current shape.
+ * Keeps the entry's date: earlier versions dropped it here, which made dated
+ * meals vanish after a reload. Entries hit by that still carry the date in
+ * their id ("meal_2026-09-28"), so it is restored from there.
+ */
 export function normalizeMealItem(item: any): MealItem {
   if (!item) {
     return {
@@ -59,11 +68,20 @@ export function normalizeMealItem(item: any): MealItem {
     };
   }
 
+  const date: string | undefined = item.date || (typeof item.id === 'string' ? item.id.match(DATE_ID)?.[1] : undefined);
+  const dated = date
+    ? { date, weekKey: item.weekKey || (() => {
+        const { weekNumber, year } = getISOWeek(parseISODate(date));
+        return `${year}-W${String(weekNumber).padStart(2, '0')}`;
+      })() }
+    : {};
+
   if (item.meals && typeof item.meals === 'object') {
     return {
-      id: item.id || 'meal_' + (item.day || 'mo'),
+      id: item.id || 'meal_' + (date || item.day || 'mo'),
       day: item.day || 'mo',
       dayLabel: item.dayLabel || '',
+      ...dated,
       meals: {
         fruehstueck: item.meals.fruehstueck || null,
         mittagessen: item.meals.mittagessen || null,
@@ -79,21 +97,36 @@ export function normalizeMealItem(item: any): MealItem {
         category: item.category || 'Hauptgericht',
         cookTime: item.cookTime || '25 Min',
         calories: item.calories,
-        image: item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+        image: item.image || '',
         ingredients: item.ingredients || []
       }
     : null;
 
   return {
-    id: item.id || 'meal_' + item.day,
+    id: item.id || 'meal_' + (date || item.day),
     day: item.day,
     dayLabel: item.dayLabel,
+    ...dated,
     meals: {
       fruehstueck: null,
       mittagessen: null,
       abendessen: legacyDinner
     }
   };
+}
+
+/**
+ * One entry per date. The lost-date bug made edits append a second entry for the
+ * same day; the later one is the user's latest change, so it wins.
+ */
+export function dedupeMealPlan(items: MealItem[]): MealItem[] {
+  const byKey = new Map<string, MealItem>();
+  for (const item of items) {
+    const key = item.date ? `date:${item.date}` : `id:${item.id}`;
+    byKey.delete(key);
+    byKey.set(key, item);
+  }
+  return Array.from(byKey.values());
 }
 
 export const PRESET_DISH_TEMPLATES = [

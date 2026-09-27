@@ -5,7 +5,7 @@ import { sounds } from '../utils/audio';
 interface AtelierVoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddShoppingItem: (name: string, amount: string, category: ShoppingCategory) => void;
+  onAddShoppingItem: (name: string, amount: string, category?: ShoppingCategory) => void;
   onAddNote: (text: string, author?: string) => void;
 }
 
@@ -63,7 +63,7 @@ export const AtelierVoiceModal: React.FC<AtelierVoiceModalProps> = ({
 
     sounds.playTick();
     if (targetType === 'shopping') {
-      onAddShoppingItem(inputText.trim(), '', 'sonstiges');
+      onAddShoppingItem(inputText.trim(), '');
     } else {
       onAddNote(inputText.trim(), authorName);
     }

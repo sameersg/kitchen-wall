@@ -241,7 +241,7 @@ export const MobileCompanion: React.FC = () => {
     e.preventDefault();
     if (!shopName.trim()) return;
     sounds.playTick();
-    addShoppingItem(shopName, shopAmount, 'sonstiges');
+    addShoppingItem(shopName, shopAmount);
     setShopName('');
     setShopAmount('');
   };

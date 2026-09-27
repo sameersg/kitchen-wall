@@ -4,7 +4,7 @@ import {
   MapPin, Plus, Trash2, RotateCcw, Check, Sparkles, ExternalLink, Upload, Search,
   ShoppingCart, RefreshCw, LogOut
 } from 'lucide-react';
-import { DashboardSettings, TimerPreset, RadioStation, QuickBookmark, CalendarFeed } from '../types';
+import { DashboardSettings, TimerPreset, RadioStation, QuickBookmark, CalendarFeed, DashboardPalette } from '../types';
 import { parseIcsContent } from '../utils/wasteParser';
 import { sounds } from '../utils/audio';
 
@@ -16,6 +16,13 @@ interface SettingsModalProps {
   onReset: () => void;
   initialTab?: 'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'radio' | 'bookmarks';
 }
+
+const PALETTES: Array<{ name: DashboardPalette; colors: string[] }> = [
+  { name: 'Salbei', colors: ['#dfe8da', '#f3ded5', '#f4ead0'] },
+  { name: 'Terrakotta', colors: ['#e4e1c9', '#eecdbb', '#eadcc4'] },
+  { name: 'Nordisch', colors: ['#d9e7e2', '#e2dfee', '#dce5ee'] },
+  { name: 'Gewürz', colors: ['#d3e2c1', '#f3c3ab', '#f4d98c'] }
+];
 
 const CITY_PRESETS = [
   { name: 'Hamburg', lat: 53.551, lon: 9.993 },
@@ -524,6 +531,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Tab 0: Dashboard Name & Suggestions */}
           {activeTab === 'name' && (
             <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-ink block mb-1.5">Farbpalette</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {PALETTES.map((p) => {
+                    const active = (settings.palette || 'Salbei') === p.name;
+                    return (
+                      <button
+                        key={p.name}
+                        type="button"
+                        onClick={() => {
+                          sounds.playTick();
+                          onUpdateSettings({ palette: p.name });
+                        }}
+                        className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                          active ? 'border-terracotta ring-1 ring-terracotta/40 bg-white' : 'border-parchment-300 bg-white hover:bg-parchment-50'
+                        }`}
+                      >
+                        <div className="flex gap-1 mb-1.5">
+                          {p.colors.map((c) => (
+                            <span key={c} className="w-4 h-4 rounded-full border border-black/5" style={{ background: c }} />
+                          ))}
+                        </div>
+                        <span className="text-[11px] font-bold text-ink">{p.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div>
                 <label className="text-xs font-bold text-ink block mb-1">
                   Name des Küchen-Dashboards

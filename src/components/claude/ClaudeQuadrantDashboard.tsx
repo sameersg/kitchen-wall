@@ -6,6 +6,7 @@ import { QuadrantMultiTabCard } from './QuadrantMultiTabCard';
 import { AppState, ShoppingCategory, SingleMeal, CalendarEvent } from '../../types';
 import { formatISODate } from '../../utils/dateUtils';
 import { getMealItemForDate } from '../../hooks/useSyncState';
+import { mainMealType, plannedSlots } from '../../utils/mealSlots';
 
 interface ClaudeQuadrantDashboardProps {
   state: AppState;
@@ -20,6 +21,7 @@ interface ClaudeQuadrantDashboardProps {
   onAddNote: (text: string, author?: string) => void;
   onRemoveNote: (id: string) => void;
   onSelectWeekMeal?: (dayKey: string, meal: SingleMeal | null) => void;
+  onOpenDay?: (dateStr: string) => void;
   calendarEvents?: CalendarEvent[];
   isCalendarLive?: boolean;
   isCalendarSyncing?: boolean;
@@ -43,6 +45,7 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
   onAddNote,
   onRemoveNote,
   onSelectWeekMeal,
+  onOpenDay,
   calendarEvents,
   isCalendarLive = false,
   isCalendarSyncing = false,
@@ -61,11 +64,11 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
 
   const currentDayItem = getMealItemForDate(mealPlan, todayStr);
 
-  const currentMeal =
-    currentDayItem?.meals?.abendessen ||
-    currentDayItem?.meals?.mittagessen ||
-    currentDayItem?.meals?.fruehstueck ||
-    null;
+  const mainType = mainMealType(currentDayItem);
+  const currentMeal = mainType ? currentDayItem?.meals?.[mainType] || null : null;
+  const otherMeals = plannedSlots(currentDayItem)
+    .filter((s) => s.type !== mainType)
+    .map((s) => ({ short: s.short, dish: s.meal.title }));
 
   const todayCook = currentMeal?.cookTime ? `⏱ ${currentMeal.cookTime}` : '';
   const todayNote = currentMeal
@@ -85,6 +88,7 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
         todayDishImg={currentMeal?.image}
         todayCook={todayCook}
         todayNote={todayNote}
+        otherMeals={otherMeals}
         onOpenRecipe={onOpenRecipeModal}
         weatherLat={settings.weatherLat}
         weatherLon={settings.weatherLon}
@@ -104,7 +108,7 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
       {/* Quadrant 3: Bottom-Left Woche (Weekly Meal Plan) */}
       <QuadrantWeekCard
         mealPlan={mealPlan}
-        onOpenMealDetails={onSelectWeekMeal}
+        onOpenDay={onOpenDay || ((dateStr) => onSelectWeekMeal?.(dateStr, null))}
       />
 
       {/* Quadrant 4: Bottom-Right Multi-Tab (Anlässe, Pinnwand, Müll) */}

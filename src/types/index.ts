@@ -144,10 +144,14 @@ export interface DashboardSettings {
   weatherLat: number;
   weatherLon: number;
   dashboardName?: string;
+  /** Colour palette of the dashboard (dark mode overrides it at night) */
+  palette?: DashboardPalette;
   customTimerPresets: TimerPreset[];
   customStations: RadioStation[];
   customBookmarks: QuickBookmark[];
 }
+
+export type DashboardPalette = 'Salbei' | 'Terrakotta' | 'Nordisch' | 'Gewürz';
 
 export interface AppState {
   shoppingList: ShoppingItem[];

@@ -232,6 +232,28 @@ function removeDemoData(state) {
   return { state: next, removed };
 }
 
+// Earlier app versions dropped the date of meal-plan entries when loading them,
+// so edits of a day appended a second entry and seemed lost after a reload.
+// Restore the date from the id ("meal_2026-09-28") and keep the latest entry per day.
+function repairMealPlan(state) {
+  if (!state || !Array.isArray(state.mealPlan)) return { state, changed: false };
+  let changed = false;
+  const byKey = new Map();
+  for (const entry of state.mealPlan) {
+    let item = entry;
+    const idDate = typeof item?.id === 'string' ? item.id.match(/^meal_(\d{4}-\d{2}-\d{2})$/)?.[1] : undefined;
+    if (item && !item.date && idDate) {
+      item = { ...item, date: idDate };
+      changed = true;
+    }
+    const key = item?.date ? `date:${item.date}` : `id:${item?.id}`;
+    if (byKey.has(key)) changed = true;
+    byKey.delete(key);
+    byKey.set(key, item);
+  }
+  return { state: { ...state, mealPlan: Array.from(byKey.values()) }, changed };
+}
+
 let currentState = loadData();
 if (currentState) {
   const hadSecrets = SECRET_BRING_FIELDS.some((k) => currentState.settings?.bring?.[k]);
@@ -241,6 +263,12 @@ if (currentState) {
     saveData(currentState);
     saveData(currentState);
     console.log('🔐 Bring!-Zugangsdaten aus data.json nach secrets.json verschoben.');
+  }
+  const repaired = repairMealPlan(currentState);
+  if (repaired.changed) {
+    currentState = repaired.state;
+    saveData(currentState);
+    console.log('🛠  Speiseplan repariert (Datum wiederhergestellt, doppelte Einträge zusammengeführt).');
   }
   const cleaned = removeDemoData(currentState);
   if (cleaned.removed > 0) {
@@ -277,7 +305,7 @@ app.post('/api/state', (req, res) => {
   if (!isValidState(req.body)) {
     return res.status(400).json({ error: 'Invalid state payload' });
   }
-  currentState = stripSecrets(req.body);
+  currentState = repairMealPlan(stripSecrets(req.body)).state;
   const saved = saveData(currentState);
   broadcastState(currentState);
   if (!saved) {
@@ -623,7 +651,7 @@ wss.on('connection', (ws, req) => {
           ws.send(JSON.stringify({ type: 'SYNC_STATE', payload: currentState }));
         }
       } else if (parsed.type === 'UPDATE_STATE' && isValidState(parsed.payload)) {
-        currentState = stripSecrets(parsed.payload);
+        currentState = repairMealPlan(stripSecrets(parsed.payload)).state;
         saveData(currentState);
         broadcastState(currentState, ws);
       }

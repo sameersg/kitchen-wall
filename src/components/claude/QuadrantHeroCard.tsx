@@ -11,6 +11,8 @@ interface QuadrantHeroCardProps {
   todayDishImg?: string;
   todayCook: string;
   todayNote: string;
+  /** Other meals planned today, shown as small chips (e.g. FRÜH · Porridge) */
+  otherMeals?: { short: string; dish: string }[];
   onOpenRecipe?: () => void;
   weatherLat?: number;
   weatherLon?: number;
@@ -32,6 +34,7 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
   todayDishImg,
   todayCook,
   todayNote,
+  otherMeals = [],
   onOpenRecipe,
   weatherLat,
   weatherLon
@@ -167,12 +170,20 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
           <h2 className="font-serif font-[400] text-[40px] md:text-[46px] leading-[1.02] text-white drop-shadow-sm group-hover:text-amber-100 transition-colors">
             {todayDishName || 'Noch nichts geplant'}
           </h2>
+          {otherMeals.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {otherMeals.map((m) => (
+                <span
+                  key={m.short}
+                  className="text-[12px] font-[600] text-white bg-white/14 backdrop-blur-[6px] px-[11px] py-1.5 rounded-full"
+                >
+                  <b className="text-[9px] tracking-[0.12em] text-[#e8b98e] mr-1.5">{m.short}</b>
+                  {m.dish}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="flex items-center gap-2.5 mt-1 flex-wrap">
-            {todayCook && (
-              <span className="text-[11px] md:text-[12px] font-[700] text-white bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 shadow-xs">
-                {todayCook}
-              </span>
-            )}
             {todayNote && (
               <span className="text-[12px] md:text-[13px] font-[500] text-white/85 line-clamp-1">
                 {todayNote}

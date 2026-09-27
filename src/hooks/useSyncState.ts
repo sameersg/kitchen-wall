@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AppState, ShoppingItem, KitchenNote, DashboardSettings, ShoppingCategory, NoteColor, MealItem, MealType, SingleMeal } from '../types';
-import { INITIAL_STATE, normalizeMealItem } from '../utils/defaults';
+import { INITIAL_STATE, normalizeMealItem, dedupeMealPlan } from '../utils/defaults';
 import { parseISODate, formatISODate, getISOWeek } from '../utils/dateUtils';
 import { parseIngredient, categorizeIngredient, ingredientKey } from '../utils/ingredients';
 
@@ -29,7 +29,7 @@ export function mergeState(saved: any): AppState {
     ...saved,
     shoppingList: Array.isArray(saved.shoppingList) ? saved.shoppingList : INITIAL_STATE.shoppingList,
     notes: Array.isArray(saved.notes) ? saved.notes : INITIAL_STATE.notes,
-    mealPlan: Array.isArray(saved.mealPlan) ? saved.mealPlan.map(normalizeMealItem) : INITIAL_STATE.mealPlan,
+    mealPlan: Array.isArray(saved.mealPlan) ? dedupeMealPlan(saved.mealPlan.map(normalizeMealItem)) : INITIAL_STATE.mealPlan,
     customCalendarEvents: Array.isArray(saved.customCalendarEvents) ? saved.customCalendarEvents : INITIAL_STATE.customCalendarEvents,
     settings: {
       ...INITIAL_STATE.settings,
@@ -354,15 +354,18 @@ export function useSyncState() {
   }, [state.settings.bring?.enabled, state.settings.bring?.listUuid, state.settings.bring?.autoSync, syncBring]);
 
   // Action Helpers
-  const addShoppingItem = useCallback((name: string, amount: string = '', category: ShoppingCategory = 'sonstiges') => {
+  const addShoppingItem = useCallback((name: string, amount: string = '', category?: ShoppingCategory) => {
     if (!name.trim()) return;
-    const cleanName = name.trim();
-    const cleanAmount = amount.trim();
+    // "2 Milch" / "Mehl (500 g)" typed into one field: split off the amount
+    const parsed = amount.trim() ? { name: name.trim(), amount: amount.trim() } : parseIngredient(name);
+    const cleanName = parsed.name;
+    const cleanAmount = parsed.amount;
+    if (!cleanName) return;
     const newItem: ShoppingItem = {
       id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       name: cleanName,
       amount: cleanAmount,
-      category,
+      category: category || categorizeIngredient(cleanName),
       checked: false,
       createdAt: Date.now()
     };

@@ -9,7 +9,9 @@ import { MobileCompanion } from './components/mobile/MobileCompanion';
 import { useSyncState } from './hooks/useSyncState';
 import { useWakeLock } from './hooks/useWakeLock';
 import { useDashboardCalendar } from './hooks/useDashboardCalendar';
-import { SingleMeal, ShoppingCategory } from './types';
+import { SingleMeal, ShoppingCategory, MealType } from './types';
+import { DayMealsModal } from './components/claude/DayMealsModal';
+import { mainMealType } from './utils/mealSlots';
 import { formatISODate, parseISODate, formatFullGermanDate } from './utils/dateUtils';
 import { getMealItemForDate } from './hooks/useSyncState';
 
@@ -48,6 +50,8 @@ export function App() {
   const [settingsInitialTab, setSettingsInitialTab] = useState<'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'radio' | 'bookmarks'>('name');
   const [isScreensaverOpen, setIsScreensaverOpen] = useState(false);
   const [editingDayKey, setEditingDayKey] = useState<string | null>(null);
+  const [editingMealType, setEditingMealType] = useState<MealType | null>(null);
+  const [dayModalDate, setDayModalDate] = useState<string | null>(null);
 
   const handleOpenSettings = (tab: 'name' | 'widgets' | 'calendar' | 'bring' | 'weather' | 'timers' | 'radio' | 'bookmarks' = 'name') => {
     setSettingsInitialTab(tab);
@@ -96,6 +100,11 @@ export function App() {
     localStorage.setItem('kitchen_theme_mode', isNight ? 'dark' : 'light');
   }, [isNight]);
 
+  const palette = state.settings?.palette || 'Salbei';
+  useEffect(() => {
+    document.documentElement.setAttribute('data-palette', palette);
+  }, [palette]);
+
   const handleToggleNight = () => {
     setIsNight((prev) => !prev);
   };
@@ -118,28 +127,34 @@ export function App() {
   const activeDateOrKey = editingDayKey || todayStr;
   const currentDayItem = getMealItemForDate(state.mealPlan, activeDateOrKey);
 
-  const currentMeal: SingleMeal | null =
-    currentDayItem?.meals?.abendessen ||
-    currentDayItem?.meals?.mittagessen ||
-    currentDayItem?.meals?.fruehstueck ||
-    null;
+  // Meal edited in the recipe modal: the chosen slot, else the day's main meal, else dinner
+  const recipeMealType: MealType = editingMealType || mainMealType(currentDayItem) || 'abendessen';
+  const currentMeal: SingleMeal | null = currentDayItem?.meals?.[recipeMealType] || null;
 
   const handleSelectMeal = (newMeal: SingleMeal) => {
-    updateMealSlot(activeDateOrKey, 'abendessen', newMeal);
+    updateMealSlot(activeDateOrKey, recipeMealType, newMeal);
   };
 
-  const handleOpenDayMeal = (dayOrDateKey: string, _meal: SingleMeal | null) => {
-    setEditingDayKey(dayOrDateKey);
+  // Week tiles open the day editor (breakfast, lunch, dinner)
+  const handleOpenDayMeal = (dayOrDateKey: string, _meal?: SingleMeal | null) => {
+    setDayModalDate(dayOrDateKey);
+  };
+
+  const handleOpenMealDetails = (dateStr: string, type: MealType) => {
+    setDayModalDate(null);
+    setEditingDayKey(dateStr);
+    setEditingMealType(type);
     setIsRecipeModalOpen(true);
   };
 
   const handleOpenTodayMeal = () => {
     setEditingDayKey(todayStr);
+    setEditingMealType(null);
     setIsRecipeModalOpen(true);
   };
 
   const handleAddShoppingItem = (name: string, amount?: string, category?: ShoppingCategory) => {
-    addShoppingItem(name, amount || '', category || 'sonstiges');
+    addShoppingItem(name, amount || '', category);
   };
 
   const handleAddNote = (text: string, author?: string) => {
@@ -222,10 +237,22 @@ export function App() {
         onClose={() => {
           setIsRecipeModalOpen(false);
           setEditingDayKey(null);
+          setEditingMealType(null);
         }}
         currentMeal={currentMeal}
         onSelectMeal={handleSelectMeal}
         onAddIngredientsToShopping={addMealIngredientsToShopping}
+        onDeleteMeal={() => updateMealSlot(activeDateOrKey, recipeMealType, null)}
+      />
+
+      {/* Day editor: breakfast, lunch and dinner of one day */}
+      <DayMealsModal
+        isOpen={dayModalDate !== null}
+        dateStr={dayModalDate || todayStr}
+        mealItem={dayModalDate ? getMealItemForDate(state.mealPlan, dayModalDate) : null}
+        onSaveSlot={updateMealSlot}
+        onOpenDetails={handleOpenMealDetails}
+        onClose={() => setDayModalDate(null)}
       />
 
       {/* Settings Modal */}

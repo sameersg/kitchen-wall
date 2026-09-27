@@ -41,18 +41,12 @@ export const QuadrantShoppingCard: React.FC<QuadrantShoppingCardProps> = ({
   };
 
   const openCount = items.filter((i) => !i.checked).length;
-  const openLabel = `${openCount} offen`;
+  const openLabel = `${openCount} offen · ${items.length} total`;
 
-  // Sort: open items first (by creation / order), completed items at the bottom
-  const sortedItems = [...items].sort((a, b) => {
-    if (a.checked !== b.checked) return a.checked ? 1 : -1;
-    return (b.createdAt || 0) - (a.createdAt || 0);
-  });
-
-  // Distribute across 2 balanced columns
-  const half = Math.ceil(sortedItems.length / 2);
-  const col1 = sortedItems.slice(0, half);
-  const col2 = sortedItems.slice(half);
+  // Open items first (newest on top), ticked-off ones at the bottom
+  const sortedItems = [...items].sort((a, b) =>
+    a.checked !== b.checked ? (a.checked ? 1 : -1) : (b.createdAt || 0) - (a.createdAt || 0)
+  );
 
   const addItem = () => {
     const trimmed = inputValue.trim();
@@ -73,11 +67,11 @@ export const QuadrantShoppingCard: React.FC<QuadrantShoppingCardProps> = ({
       <div
         key={item.id}
         onClick={() => onToggle(item.id)}
-        className="group flex items-center gap-2.5 p-[6px_8px] rounded-[12px] hover:bg-[var(--wash)] active:scale-[0.98] cursor-pointer transition-all min-w-0"
+        className="group flex items-center gap-[11px] p-[9px_10px] rounded-[12px] hover:bg-[var(--wash)] active:scale-[0.98] cursor-pointer transition-all min-w-0"
       >
         {/* Custom Square Checkbox */}
         <span
-          className={`w-[18px] h-[18px] shrink-0 rounded-[5px] border-2 flex items-center justify-center transition-all ${
+          className={`w-[19px] h-[19px] shrink-0 rounded-[6px] border-2 flex items-center justify-center transition-all ${
             isDone
               ? 'border-[var(--greenInk)] bg-[var(--greenInk)] text-white'
               : 'border-[var(--greenSoft)] bg-transparent group-hover:border-[var(--greenInk)]'
@@ -92,7 +86,7 @@ export const QuadrantShoppingCard: React.FC<QuadrantShoppingCardProps> = ({
 
         {/* Item Name */}
         <span
-          className={`flex-1 min-w-0 text-[13.5px] md:text-[14px] font-[600] truncate transition-colors ${
+          className={`flex-1 min-w-0 text-[15px] md:text-[16px] font-[600] truncate transition-colors ${
             isDone
               ? 'text-[var(--greenSoft)] line-through'
               : 'text-[var(--ink)]'
@@ -101,12 +95,6 @@ export const QuadrantShoppingCard: React.FC<QuadrantShoppingCardProps> = ({
           {item.name}
         </span>
 
-        {/* Quantity if available */}
-        {item.amount && (
-          <span className="text-[11px] font-[600] text-[var(--greenSoft)] shrink-0 pl-1">
-            {item.amount}
-          </span>
-        )}
       </div>
     );
   };
@@ -145,21 +133,14 @@ export const QuadrantShoppingCard: React.FC<QuadrantShoppingCardProps> = ({
         </div>
       </div>
 
-      {/* Clean 2-Column List without rigid categories */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden grid grid-cols-2 gap-x-4.5 content-start pr-1 scrollbar-none">
+      {/* Two-column list, as in the design (amounts still go to Bring!) */}
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden grid grid-cols-2 gap-x-[18px] gap-y-0.5 content-start pr-1 scrollbar-none">
         {items.length === 0 ? (
           <div className="col-span-2 flex flex-col items-center justify-center h-full py-12 text-[var(--greenSoft)] text-[14px] font-[600]">
             Alle Einkäufe erledigt! 🎉
           </div>
         ) : (
-          <>
-            <div className="flex flex-col gap-0.5 min-w-0">
-              {col1.map(renderItem)}
-            </div>
-            <div className="flex flex-col gap-0.5 min-w-0">
-              {col2.map(renderItem)}
-            </div>
-          </>
+          sortedItems.map(renderItem)
         )}
       </div>
 

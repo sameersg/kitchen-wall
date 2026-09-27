@@ -24,6 +24,27 @@
   --btnInk: #f7f4ee;
 }
 
+:root[data-palette="Terrakotta"] {
+  --bg: #f1ebe1;
+  --green: #e4e1c9; --greenInk: #4f4e24; --greenSoft: #8a8760;
+  --blush: #eecdbb; --blushInk: #8c3b1e; --blushSoft: #a3674c;
+  --butter: #eadcc4; --butterInk: #6e5022;
+}
+
+:root[data-palette="Nordisch"] {
+  --bg: #eceeed;
+  --green: #d9e7e2; --greenInk: #24493f; --greenSoft: #6f8b83;
+  --blush: #e2dfee; --blushInk: #473d7a; --blushSoft: #7a7399;
+  --butter: #dce5ee; --butterInk: #2e4c68;
+}
+
+:root[data-palette="Gewürz"] {
+  --bg: #f6efe0;
+  --green: #d3e2c1; --greenInk: #2f5222; --greenSoft: #6e8a5c;
+  --blush: #f3c3ab; --blushInk: #8f2e12; --blushSoft: #a8573a;
+  --butter: #f4d98c; --butterInk: #6b4a00;
+}
+
 :root[data-theme="dark"] {
   --bg: #0d0e0d;
   --card: #1a1c1a;
