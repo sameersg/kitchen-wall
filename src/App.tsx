@@ -168,6 +168,13 @@ export function App() {
     addShoppingItem(name, amount || '', category);
   };
 
+  // Bins are out: hide the reminder on every device (keep only the last few dates)
+  const handleWasteReminderDone = (pickupDate: string) => {
+    const done = state.settings.wasteReminderDone || [];
+    if (done.includes(pickupDate)) return;
+    updateSettings({ wasteReminderDone: [...done, pickupDate].slice(-10) });
+  };
+
   const handleAddNote = (text: string, author?: string) => {
     addNote(text, author || 'Küche', 'amber');
   };
@@ -192,6 +199,7 @@ export function App() {
           onRemoveNote={removeNote}
           onSelectWeekMeal={handleOpenDayMeal}
           timers={kitchenTimers.timers}
+          onWasteReminderDone={handleWasteReminderDone}
           onOpenTimers={() => setIsTimerPanelOpen(true)}
           calendarEvents={calendarEvents}
           isCalendarLive={isCalendarLive}

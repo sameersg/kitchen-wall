@@ -25,6 +25,7 @@ interface ClaudeQuadrantDashboardProps {
   onOpenDay?: (dateStr: string) => void;
   timers?: KitchenTimer[];
   onOpenTimers?: () => void;
+  onWasteReminderDone?: (pickupDate: string) => void;
   calendarEvents?: CalendarEvent[];
   isCalendarLive?: boolean;
   isCalendarSyncing?: boolean;
@@ -51,6 +52,7 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
   onOpenDay,
   timers,
   onOpenTimers,
+  onWasteReminderDone,
   calendarEvents,
   isCalendarLive = false,
   isCalendarSyncing = false,
@@ -96,6 +98,9 @@ export const ClaudeQuadrantDashboard: React.FC<ClaudeQuadrantDashboardProps> = (
         otherMeals={otherMeals}
         timers={timers}
         onOpenTimers={onOpenTimers}
+        wasteEvents={wasteEvents}
+        wasteReminderDone={settings.wasteReminderDone}
+        onWasteReminderDone={onWasteReminderDone}
         onOpenRecipe={onOpenRecipeModal}
         weatherLat={settings.weatherLat}
         weatherLon={settings.weatherLon}

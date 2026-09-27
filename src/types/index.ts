@@ -138,6 +138,8 @@ export interface DashboardSettings {
   dashboardName?: string;
   /** Colour palette of the dashboard (dark mode overrides it at night) */
   palette?: DashboardPalette;
+  /** Pickup dates (YYYY-MM-DD) whose "bins out" reminder was marked done */
+  wasteReminderDone?: string[];
   customTimerPresets: TimerPreset[];
   customBookmarks: QuickBookmark[];
 }

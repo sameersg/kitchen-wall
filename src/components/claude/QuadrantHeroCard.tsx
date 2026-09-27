@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useDashboardWeather } from '../../hooks/useDashboardWeather';
 import { KitchenTimer } from '../../hooks/useKitchenTimers';
 import { TimerChips } from './TimerPanel';
+import { CalendarEvent } from '../../types';
+import { getWasteReminder } from '../../utils/wasteReminder';
 
 interface QuadrantHeroCardProps {
   householdName?: string;
@@ -17,6 +19,10 @@ interface QuadrantHeroCardProps {
   otherMeals?: { short: string; dish: string }[];
   timers?: KitchenTimer[];
   onOpenTimers?: () => void;
+  /** Waste pickups, for the "bins out tonight" reminder */
+  wasteEvents?: CalendarEvent[];
+  wasteReminderDone?: string[];
+  onWasteReminderDone?: (pickupDate: string) => void;
   onOpenRecipe?: () => void;
   weatherLat?: number;
   weatherLon?: number;
@@ -41,6 +47,9 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
   otherMeals = [],
   timers = [],
   onOpenTimers,
+  wasteEvents,
+  wasteReminderDone,
+  onWasteReminderDone,
   onOpenRecipe,
   weatherLat,
   weatherLon
@@ -65,6 +74,8 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
       : hours < 17
       ? `Hallo, ${householdName}`
       : `Guten Abend, ${householdName}`;
+
+  const wasteReminder = getWasteReminder(wasteEvents, now, wasteReminderDone);
 
   // Only a real dish photo; without one the card stays a calm dark surface
   const bgImage = todayDishImg || '';
@@ -167,7 +178,32 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
         </div>
 
         {/* Bottom Area: Today's Featured Dish in Instrument Serif */}
-        <div className={`flex flex-col gap-2 ${onOpenTimers ? 'pr-[110px]' : ''}`}>
+        <div className="flex flex-col gap-2">
+        {wasteReminder && (
+          <div className="w-full flex items-center gap-3 bg-[#e8b98e] text-[#23231f] rounded-[16px] p-[8px_8px_8px_14px]">
+            <div className="flex-1 min-w-0 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-[13px] font-[800] whitespace-nowrap">{wasteReminder.headline}:</span>
+              {wasteReminder.bins.map((bin) => (
+                <span key={bin.name} className="flex items-center gap-1.5 text-[13px] font-[700] whitespace-nowrap">
+                  <span className="w-[10px] h-[10px] rounded-[3px] shrink-0" style={{ background: bin.dot }} />
+                  {bin.name}
+                </span>
+              ))}
+            </div>
+            {onWasteReminderDone && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onWasteReminderDone(wasteReminder.pickupDate);
+                }}
+                className="shrink-0 whitespace-nowrap bg-[#23231f] text-white text-[12px] font-[800] px-3 py-1.5 rounded-full cursor-pointer active:scale-95"
+              >
+                ✓ Erledigt
+              </button>
+            )}
+          </div>
+        )}
         <TimerChips timers={timers} onOpen={() => onOpenTimers?.()} />
         <div
           onClick={onOpenRecipe}
@@ -193,7 +229,7 @@ export const QuadrantHeroCard: React.FC<QuadrantHeroCardProps> = ({
               ))}
             </div>
           )}
-          <div className="flex items-center gap-2.5 mt-1 flex-wrap">
+          <div className={`flex items-center gap-2.5 mt-1 flex-wrap ${onOpenTimers ? 'pr-[110px]' : ''}`}>
             {todayNote && (
               <span className="text-[12px] md:text-[13px] font-[500] text-white/85 line-clamp-1">
                 {todayNote}
